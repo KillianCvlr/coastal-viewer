@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+psycopg2-binary
+sqlalchemy
+geoalchemy2
+exifread
+shapely
+Pillow

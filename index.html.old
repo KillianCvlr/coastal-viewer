@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coastal Viewer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #container {
+      display: flex;
+      height: 100%;
+      width: 100%;
+    }
+
+    #map {
+      width: 50%;
+      min-width: 200px;
+    }
+
+    #resizer {
+      width: 5px;
+      background: #ccc;
+      cursor: col-resize;
+    }
+
+    #image-panel {
+      flex-grow: 1;
+      min-width: 200px;
+      background: #f9f9f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: auto;
+      position: relative;
+    }
+
+    #image-panel img {
+      max-width: 100%;
+      max-height: 100%;
+      border: 1px solid #ccc;
+      cursor: zoom-in;
+    }
+
+    /* Fullscreen styles */
+    .fullscreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.95);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .fullscreen img {
+      max-width: 95vw;
+      max-height: 95vh;
+      border: none;
+      cursor: default;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      background: rgba(0, 0, 0, 0.6);
+      border: none;
+      font-size: 20px;
+      padding: 10px 15px;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    .close-btn:hover {
+      background: rgba(255, 0, 0, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <div id="map"></div>
+    <div id="resizer"></div>
+    <div id="image-panel">
+      <p>Select a marker to view the image</p>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([43.6, 3.9], 10); // Adjust to your region
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+    }).addTo(map);
+
+    // Load photo points
+    fetch('/photos')
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(photo => {
+          if (photo.latitude && photo.longitude) {
+            const marker = L.marker([photo.latitude, photo.longitude]).addTo(map);
+            marker.on('click', () => {
+              document.getElementById('image-panel').innerHTML = `
+                <div>
+                  <h3>${photo.filename}</h3>
+                  <img id="preview-img" src="/photo/${encodeURIComponent(photo.filename)}" alt="${photo.filename}">
+                  <p><small>Taken at: ${photo.timestamp}</small></p>
+                </div>
+              `;
+            });
+          }
+        });
+      });
+
+    // Resizer logic
+    const resizer = document.getElementById('resizer');
+    const mapDiv = document.getElementById('map');
+    resizer.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      document.addEventListener('mousemove', resize);
+      document.addEventListener('mouseup', stopResize);
+    });
+    function resize(e) {
+      const newWidth = e.clientX;
+      if (newWidth > 200 && newWidth < window.innerWidth - 200) {
+        mapDiv.style.width = newWidth + 'px';
+        map.invalidateSize();
+      }
+    }
+    function stopResize() {
+      document.removeEventListener('mousemove', resize);
+      document.removeEventListener('mouseup', stopResize);
+    }
+
+    // Fullscreen viewer logic
+    document.addEventListener('click', function (e) {
+      const img = e.target;
+      if (img.tagName === 'IMG' && img.id === 'preview-img') {
+        showFullscreen(img.src, img.alt);
+      }
+    });
+
+    function showFullscreen(src, alt) {
+      const overlay = document.createElement('div');
+      overlay.className = 'fullscreen';
+      overlay.innerHTML = `
+        <button class="close-btn" onclick="document.body.removeChild(this.parentElement)">✕ Close</button>
+        <img src="${src}" alt="${alt}">
+      `;
+      document.body.appendChild(overlay);
+    }
+
+    // Escape key to close fullscreen
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        const overlay = document.querySelector('.fullscreen');
+        if (overlay) document.body.removeChild(overlay);
+      }
+    });
+  </script>
+</body>
+</html>

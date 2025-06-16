@@ -1,0 +1,9 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+CREATE TABLE IF NOT EXISTS photos (
+  id SERIAL PRIMARY KEY,
+  filename TEXT UNIQUE,
+  filepath TEXT,
+  datetime TIMESTAMP,
+  geom GEOMETRY(Point, 4326)
+);

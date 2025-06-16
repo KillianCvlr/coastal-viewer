@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgis/postgis:15-3.3
+    restart: always
+    environment:
+      POSTGRES_USER: coastuser
+      POSTGRES_PASSWORD: coastpass
+      POSTGRES_DB: coastdb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U coastuser -d coastdb -h localhost -p 5432"]
+      interval: 5s
+      timeout: 5s
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./rawphotos:/app/rawphotos:ro
+    environment:
+      - DATABASE_URL=postgresql://coastuser:coastpass@db:5432/coastdb
+    ports:
+      - "8000:8000"
+
+  frontend:
+    image: nginx:alpine
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    ports:
+      - "8080:80"
+
+volumes:
+  pgdata:
