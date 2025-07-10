@@ -5,16 +5,20 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 import time
 import psycopg2
-import os
 import json
 from sqlalchemy.exc import OperationalError
-from db import SessionLocal, engine
+from db import SessionLocal, engine, get_db
 from models import Base
 from crud import get_all_photos, get_photo_by_id
 from extract_exif import extract_all_exif
 import os
 import threading
 from fastapi.middleware.cors import CORSMiddleware
+from routes import field_surveys, photos
+
+from fastapi.exceptions import RequestValidationError
+import logging
+
 
 app = FastAPI()
 
@@ -32,6 +36,15 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    logging.error(f"Validation error: {exc}")
+    return JSONResponse(status_code=422, content={"detail": exc.errors()})
+
+app.include_router(field_surveys.router)
+app.include_router(photos.router)
 
 Base.metadata.create_all(bind=engine)
 
@@ -56,49 +69,3 @@ if os.path.exists(raw_photo_path):
     app.mount("/photo", StaticFiles(directory=raw_photo_path), name="photo")
 
 extract_all_exif()
-
-# --- DB Dependency ---
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-
-# --- API Endpoints ---
-@app.get("/photos")
-def get_photos():
-    db_url = os.getenv("DATABASE_URL")
-    conn = psycopg2.connect(db_url)
-    cur = conn.cursor()
-
-    # Fetch photo filename and geom as GeoJSON
-    cur.execute("""
-        SELECT filename, ST_AsGeoJSON(geom) as geojson, datetime
-        FROM photos;
-    """)
-    photos = []
-    for row in cur.fetchall():
-        filename, geojson, datetime = row
-        # geojson may be None if no GPS
-        if geojson:
-            coords = json.loads(geojson)["coordinates"]
-        else:
-            coords = None
-        photos.append({
-            "filename": filename,
-            "coords": coords,
-            "datetime": datetime.isoformat() if datetime else None
-        })
-
-    cur.close()
-    conn.close()
-    return JSONResponse(content=photos)
-
-@app.get("/photo/{filename}")
-def serve_external_photo(filename: str):
-    file_path = f"/mnt/photos/{filename}"
-    if not os.path.exists(file_path):
-        raise HTTPException(404, "Not found")
-    return FileResponse(file_path)

@@ -20,87 +20,91 @@
       width: 100%;
     }
 
-    #map {
-      width: 50%;
-      min-width: 200px;
+    #container-nav {
+      display: flex;
+      flex-direction: column;
+      width: 40%;
+      height: 100%;
     }
 
-    #resizer {
+    #map, #nav {
+      flex-grow: 1;
+      min-height: 50px;
+      width: 100%;
+      height: 100%;
+    }
+
+    #resizer-col {
       width: 5px;
       background: #ccc;
       cursor: col-resize;
     }
+
+    #resizer-raw {
+      height: 5px;
+      background: #ccc;
+      cursor: row-resize;
+    }
+
 
     #image-panel {
       flex-grow: 1;
       min-width: 200px;
       background: #f9f9f9;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-      overflow: auto;
+      padding: 20px;  
+      overflow: visible;
       position: relative;
     }
 
     #image-panel img {
       max-width: 100%;
-      max-height: 100%;
-      border: 1px solid #ccc;
-      cursor: zoom-in;
-    }
-
-    /* Fullscreen styles */
-    .fullscreen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.95);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .fullscreen img {
-      max-width: 95vw;
-      max-height: 95vh;
+      height: auto;
+      display: block;
       border: none;
-      cursor: default;
     }
 
-    .close-btn {
-      position: absolute;
-      top: 20px;
-      right: 30px;
+        /* Optional CSS to make the link look like a button */
+    .btn {
+      padding: 10px 20px;
+      background-color: #007bff;
       color: white;
-      background: rgba(0, 0, 0, 0.6);
+      text-decoration: none;
       border: none;
-      font-size: 20px;
-      padding: 10px 15px;
+      border-radius: 4px;
+      display: inline-block;
       cursor: pointer;
-      z-index: 1001;
     }
 
-    .close-btn:hover {
-      background: rgba(255, 0, 0, 0.6);
+    .btn:hover {
+      background-color: #0056b3;
     }
+
+
   </style>
 </head>
 <body>
   <div id="container">
-    <div id="map"></div>
-    <div id="resizer"></div>
+    <div id="container-nav">
+      <div id="map"></div>
+      <div id="resizer-raw"></div>
+      <div id="nav">
+        <a href="add_field_survey.html" class="btn">Add a Field Survey</a>
+      </div>
+    </div>
+    <div id="resizer-col"></div>
     <div id="image-panel">
-      <p>Select a marker to view the image</p>
+      <img id="main-image" src="" alt="Click on a point to view image">
+      <img id="second-image" src="" alt="Click on a point to view image">
     </div>
   </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    const map = L.map('map').setView([43.6, 3.9], 10); // Adjust to your region
+    const map = L.map('map').setView([43.6, 3.9], 4); // Adjust to your region
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       maxZoom: 19,
       attribution: 'Tiles © Esri'
@@ -112,58 +116,95 @@
     .then(photos => {
       photos.forEach(photo => {
         if (photo.coords) {
-          const marker = L.marker([photo.coords[1], photo.coords[0]]).addTo(map);
+          const marker = L.circleMarker([photo.coords[1], photo.coords[0]], {
+            radius: 4,
+            color: "#9f36f1",
+            fillColor: "#9f36f1",
+            fillOpacity: 1}).addTo(map);
           marker.bindPopup(`<b>${photo.filename}</b><br>${photo.datetime || ''}`);
+
+          marker.on('click', () => {
+            const imageUrl = `http://localhost:8000/photo/${encodeURIComponent(photo.filename)}`;
+
+            // Fetch the image (optional: check for 404 first)
+            fetch(imageUrl)
+              .then(response => {
+                if (!response.ok) {
+                  throw new Error("Image not found");
+                }
+                return response.blob(); // read image data
+              })
+              .then(blob => {
+                const imageObjectUrl = URL.createObjectURL(blob);
+                document.getElementById('main-image').src = imageObjectUrl;
+                document.getElementById('second-image').src = imageObjectUrl;
+              })
+              .catch(error => {
+                console.error("Failed to load image:", error);
+                document.getElementById('main-image').src = ""; // or a placeholder
+                document.getElementById('second-image').src = ""; // or a placeholder
+              });
+          });
         }
       });
     })
     .catch(err => console.error('Error loading photos:', err));
 
-    // Resizer logic
-    const resizer = document.getElementById('resizer');
-    const mapDiv = document.getElementById('map');
-    resizer.addEventListener('mousedown', function(e) {
-      e.preventDefault();
-      document.addEventListener('mousemove', resize);
-      document.addEventListener('mouseup', stopResize);
-    });
-    function resize(e) {
-      const newWidth = e.clientX;
-      if (newWidth > 200 && newWidth < window.innerWidth - 200) {
-        mapDiv.style.width = newWidth + 'px';
-        map.invalidateSize();
-      }
-    }
-    function stopResize() {
-      document.removeEventListener('mousemove', resize);
-      document.removeEventListener('mouseup', stopResize);
-    }
+    // Vertical resizer between left and right
+    const resizerCol = document.getElementById("resizer-col");
+    const container = document.getElementById("container");
+    const containerNav = document.getElementById("container-nav");
+    const imagePanel = document.getElementById("image-panel");
 
-    // Fullscreen viewer logic
-    document.addEventListener('click', function (e) {
-      const img = e.target;
-      if (img.tagName === 'IMG' && img.id === 'preview-img') {
-        showFullscreen(img.src, img.alt);
-      }
+    let isResizingCol = false;
+
+    resizerCol.addEventListener("mousedown", function(e) {
+      isResizingCol = true;
+      document.body.style.cursor = "col-resize";
     });
 
-    function showFullscreen(src, alt) {
-      const overlay = document.createElement('div');
-      overlay.className = 'fullscreen';
-      overlay.innerHTML = `
-        <button class="close-btn" onclick="document.body.removeChild(this.parentElement)">✕ Close</button>
-        <img src="${src}" alt="${alt}">
-      `;
-      document.body.appendChild(overlay);
-    }
-
-    // Escape key to close fullscreen
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') {
-        const overlay = document.querySelector('.fullscreen');
-        if (overlay) document.body.removeChild(overlay);
-      }
+    window.addEventListener("mousemove", function(e) {
+      if (!isResizingCol) return;
+      const containerWidth = container.offsetWidth;
+      const leftWidth = e.clientX;
+      const rightWidth = containerWidth - leftWidth - 5;
+      containerNav.style.width = `${leftWidth}px`;
+      imagePanel.style.width = `${rightWidth}px`;
     });
+
+    window.addEventListener("mouseup", function() {
+      isResizingCol = false;
+      document.body.style.cursor = "default";
+      map.invalidateSize()
+    });
+
+    // Horizontal resizer between map and nav
+    const resizerRaw = document.getElementById("resizer-raw");
+    const mapDiv = document.getElementById("map");
+    const navDiv = document.getElementById("nav");
+
+    let isResizingRow = false;
+
+    resizerRaw.addEventListener("mousedown", function(e) {
+      isResizingRow = true;
+      document.body.style.cursor = "row-resize";
+    });
+
+    window.addEventListener("mousemove", function(e) {
+      if (!isResizingRow) return;
+      const containerNavHeight = containerNav.offsetHeight;
+      const topHeight = e.clientY - containerNav.getBoundingClientRect().top;
+      const bottomHeight = containerNavHeight - topHeight - 5;
+      mapDiv.style.height = `${topHeight}px`;
+      navDiv.style.height = `${bottomHeight}px`;
+    });
+
+    window.addEventListener("mouseup", function() {
+      isResizingRow = false;
+      document.body.style.cursor = "default";
+      map.invalidateSize()
+    });
+
   </script>
 </body>
 </html>

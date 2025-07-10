@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coastal Viewer</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    /* Optional CSS to make the link look like a button */
+    .btn {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      text-decoration: none;
+      border: none;
+      border-radius: 4px;
+      display: inline-block;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+    </style>
+</head>
+<body>
+  <form id="survey-form">
+    <input name="survey_name" placeholder="Survey Name" required>
+    <input name="location_lat" type="number" step="any" placeholder="Latitude" required>
+    <input name="location_lon" type="number" step="any" placeholder="Longitude" required>
+    <input name="taken_at" type="datetime-local" required>
+    <textarea name="comment" placeholder="Comment"></textarea>
+    <input name="abovewater_folder" placeholder="Above Water Folder" required>
+    <input name="underwater_folder" placeholder="Under Water Folder" required>
+    <input name="linking_file" placeholder="Linking File" required>
+    <button type="submit">Submit Survey</button>
+  </form>
+  <div>
+    <a href="index.html" class="btn">return to Coastal Viewer</a>
+  </div>
+
+  <script>
+    document.getElementById('survey-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        survey_name: form.survey_name.value,
+        location_lat: parseFloat(form.location_lat.value),
+        location_lon: parseFloat(form.location_lon.value),
+        taken_at: new Date(form.taken_at.value).toISOString(),
+        comment: form.comment.value,
+        abovewater_folder: form.abovewater_folder.value,
+        underwater_folder: form.underwater_folder.value,
+        linking_file: form.linking_file.value,
+      };
+
+      const response = await fetch('http://localhost:8000/surveys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        alert("Survey submitted!");
+        form.reset();
+      } else {
+        alert("Error submitting survey");
+      }
+    });
+  </script>
+</body>

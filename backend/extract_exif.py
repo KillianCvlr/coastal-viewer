@@ -39,14 +39,14 @@ def extract_all_exif():
         try:
             if lat is not None and lon is not None:
                 cur.execute("""
-                    INSERT INTO photos (filename, filepath, datetime, geom)
+                    INSERT INTO photos (filename, filepath, datetime, location)
                     VALUES (%s, %s, %s, ST_SetSRID(ST_MakePoint(%s, %s), 4326))
                     ON CONFLICT (filename) DO NOTHING;
                 """, (filename, path, timestamp, lon, lat))
             else:
-                # No GPS, set geom to NULL
+                # No GPS, set location to NULL
                 cur.execute("""
-                    INSERT INTO photos (filename, filepath, datetime, geom)
+                    INSERT INTO photos (filename, filepath, datetime, location)
                     VALUES (%s, %s, %s, NULL)
                     ON CONFLICT (filename) DO NOTHING;
                 """, (filename, path, timestamp))
