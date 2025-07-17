@@ -116,7 +116,7 @@
     .then(photos => {
       photos.forEach(photo => {
         if (photo.coords) {
-          const marker = L.circleMarker([photo.coords[1], photo.coords[0]], {
+          const marker = L.circleMarker([photo.coords[0], photo.coords[1]], {
             radius: 4,
             color: "#9f36f1",
             fillColor: "#9f36f1",
@@ -124,7 +124,7 @@
           marker.bindPopup(`<b>${photo.filename}</b><br>${photo.datetime || ''}`);
 
           marker.on('click', () => {
-            const imageUrl = `http://localhost:8000/photo/${encodeURIComponent(photo.filename)}`;
+            const imageUrl = `http://localhost:8000/photo/${encodeURIComponent(photo.filepath)}`;
 
             // Fetch the image (optional: check for 404 first)
             fetch(imageUrl)

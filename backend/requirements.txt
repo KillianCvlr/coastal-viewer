@@ -6,3 +6,4 @@ geoalchemy2
 exifread
 shapely
 Pillow
+python-multipart

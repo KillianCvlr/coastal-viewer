@@ -27,13 +27,10 @@
 <body>
   <form id="survey-form">
     <input name="survey_name" placeholder="Survey Name" required>
-    <input name="location_lat" type="number" step="any" placeholder="Latitude" required>
-    <input name="location_lon" type="number" step="any" placeholder="Longitude" required>
-    <input name="taken_at" type="datetime-local" required>
     <textarea name="comment" placeholder="Comment"></textarea>
-    <input name="abovewater_folder" placeholder="Above Water Folder" required>
-    <input name="underwater_folder" placeholder="Under Water Folder" required>
-    <input name="linking_file" placeholder="Linking File" required>
+    <input name="abovewater_folder" placeholder="Above Water Folder">
+    <input name="underwater_folder" placeholder="Under Water Folder">
+    <input name="linking_file" placeholder="Linking File">
     <button type="submit">Submit Survey</button>
   </form>
   <div>
@@ -46,16 +43,13 @@
       const form = e.target;
       const data = {
         survey_name: form.survey_name.value,
-        location_lat: parseFloat(form.location_lat.value),
-        location_lon: parseFloat(form.location_lon.value),
-        taken_at: new Date(form.taken_at.value).toISOString(),
         comment: form.comment.value,
         abovewater_folder: form.abovewater_folder.value,
         underwater_folder: form.underwater_folder.value,
         linking_file: form.linking_file.value,
       };
 
-      const response = await fetch('http://localhost:8000/surveys', {
+      const response = await fetch('http://localhost:8000/createSurvey/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -65,7 +59,20 @@
         alert("Survey submitted!");
         form.reset();
       } else {
-        alert("Error submitting survey");
+        const errorData = await response.json();
+        console.error("Validation errors:", errorData);
+        if (errorData.detail) {
+          if (Array.isArray(errorData.detail)) {
+            // Validation errors from FastAPI
+            const messages = errorData.detail.map(err => `• ${err.loc[1]}: ${err.msg}`).join('\n');
+            alert("Validation errors:\n" + messages);
+          } else if (typeof errorData.detail === "string") {
+            // Custom error (like folder missing)
+            alert("Error: " + errorData.detail);
+          } else {
+            alert("Unexpected error format");
+          }
+        }
       }
     });
   </script>

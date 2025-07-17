@@ -9,16 +9,12 @@ import json
 from sqlalchemy.exc import OperationalError
 from db import SessionLocal, engine, get_db
 from models import Base
-from crud import get_all_photos, get_photo_by_id
-from extract_exif import extract_all_exif
-import os
-import threading
 from fastapi.middleware.cors import CORSMiddleware
 from routes import field_surveys, photos
+from schemas import FieldSurveyCreate
 
 from fastapi.exceptions import RequestValidationError
-import logging
-
+from logger import logger
 
 app = FastAPI()
 
@@ -54,6 +50,16 @@ for i in range(MAX_RETRIES):
         # Try a dummy DB session
         db = SessionLocal()
         db.execute(text("SELECT 1"))
+
+        test_survey = FieldSurveyCreate(
+            survey_name="survey_test_2020",
+            comment="Test survey creation",
+            abovewater_folder="fromNAS/2020-IP/Alto",
+            underwater_folder="fromNAS/2020-IP/Basso",
+            linking_file="survey_2025_07/links.csv"
+        )
+
+        field_surveys.post_and_process_survey(test_survey, db )
         db.close()
         print("✅ Database is ready")
         break
@@ -63,9 +69,6 @@ for i in range(MAX_RETRIES):
 else:
     raise Exception("❌ Could not connect to the database after retries.")
 
-# --- Static file serving ---
-raw_photo_path = "/app/rawphotos"
-if os.path.exists(raw_photo_path):
-    app.mount("/photo", StaticFiles(directory=raw_photo_path), name="photo")
-
-extract_all_exif()
+logger.info("Backend Extracting phots...")
+#extract_all_exif("/app/rawphotos/test")
+logger.info("Backend Ready !")
