@@ -46,6 +46,7 @@ class FieldSurveyCreate(BaseModel):
 
 class FieldSurveyData(BaseModel):
     survey_name: str
+    id: int
     comment: Optional[str]
     coords: Optional[list[float]] = None
     datetime: Optional[datetime]

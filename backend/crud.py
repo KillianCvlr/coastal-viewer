@@ -40,9 +40,18 @@ def create_survey(db: Session, survey_data: FieldSurveyCreate):
 def get_all_surveys_data(db: Session):
     return db.query(FieldSurvey).all()
 
+def get_survey_data(db: Session, survey_id: int):
+    return db.query(FieldSurvey).filter(FieldSurvey.id == survey_id).first()
+
+def get_survey_photos(db: Session, survey_id: int):
+    return db.query(Photo).filter(Photo.survey_id == survey_id)
+
 def update_survey_with_first_photo(db: Session, survey: FieldSurvey, photo: Photo):
     if not survey or not photo:
         return
     survey.datetime = photo.datetime
     survey.location = photo.location
     db.commit()
+
+def get_num_surveys(db: Session):
+    return db.query(FieldSurvey).count()

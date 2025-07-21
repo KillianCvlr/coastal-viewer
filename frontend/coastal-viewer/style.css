@@ -1,0 +1,99 @@
+html, body {
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #container {
+      display: flex;
+      height: 100%;
+      width: 100%;
+    }
+
+    #container-nav {
+      display: flex;
+      flex-direction: column;
+      width: 40%;
+      height: 100%;
+    }
+
+    #map, #nav {
+      flex-grow: 1;
+      min-height: 50px;
+      width: 100%;
+      height: 100%;
+    }
+
+    #resizer-col {
+      width: 5px;
+      background: #ccc;
+      cursor: col-resize;
+    }
+
+    #resizer-raw {
+      height: 5px;
+      background: #ccc;
+      cursor: row-resize;
+    }
+
+
+    #image-panel {
+        flex-grow: 1;
+        flex-shrink: 0;
+        flex-basis: 300px; /* Default width */
+        min-width: 200px;
+        max-width: 100%;
+        background: #f9f9f9;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;  
+        overflow: hidden; /* or auto if you want scroll */
+        position: relative;
+    }
+
+    #image-panel img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      border: none;
+      position: relative
+    }
+
+        /* Optional CSS to make the link look like a button */
+    .btn {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border: none;
+        border-radius: 4px;
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #0056b3;
+    }
+
+    #loupe {
+    position: absolute; /* so it can overlap other areas */
+    width: 600px;
+    height: 600px;
+    border: 2px solid #666;
+    background: #fff;
+    overflow: hidden;
+    display: none;
+    z-index: 1000;
+    pointer-events: none;
+    box-shadow: 0 0 12px rgba(0,0,0,0.3);
+  }
+
+  #loupe-image {
+  position: absolute;
+  transform-origin: top left;
+  will-change: transform;
+}

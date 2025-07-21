@@ -34,7 +34,7 @@
     <button type="submit">Submit Survey</button>
   </form>
   <div>
-    <a href="index.html" class="btn">return to Coastal Viewer</a>
+    <a href="/coastal-viewer/" class="btn">return to Coastal Viewer</a>
   </div>
 
   <script>
@@ -49,7 +49,7 @@
         linking_file: form.linking_file.value,
       };
 
-      const response = await fetch('http://localhost:8000/createSurvey/', {
+      const response = await fetch('/surveys/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

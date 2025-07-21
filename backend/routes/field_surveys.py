@@ -3,25 +3,30 @@ from sqlalchemy.orm import Session
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from db import get_db
-from schemas import FieldSurveyCreate, PhotoCreate, FieldSurveyData
-from crud import create_survey, add_photos, update_survey_with_first_photo, get_first_photo_with_location, get_all_surveys_data
+from schemas import FieldSurveyCreate, PhotoOut, FieldSurveyData
+from crud import create_survey, add_photos, update_survey_with_first_photo, get_first_photo_with_location, get_all_surveys_data, get_survey_data, get_survey_photos
 from pathlib import Path
 from logger import logger
 from utils import parse_photos_from_folder, get_conflicting_folder, is_existing_folder, internal_folder_conflict
 
 router = APIRouter()
 
-# @router.post("/createSurvey/")
-# def create_survey(survey: FieldSurveyCreate, db: Session = Depends(get_db)):
-#     return create_survey(db, survey)
-
-
-@router.get("/allFieldSurveys", response_model=list[FieldSurveyData])
+@router.get("/surveys/", response_model=list[FieldSurveyData])
 def serve_all_surveys_data(db: Session = Depends(get_db)):
     logger.info("Getting all surveys data")
     return get_all_surveys_data(db)
 
-@router.post("/createSurvey/")
+@router.get("/surveys/{survey_id:int}", response_model=FieldSurveyData)
+def serve_survey_data(survey_id: int, db: Session = Depends(get_db)):
+    logger.info(f"Getting survey {survey_id} data")
+    return get_survey_data(db, survey_id)
+
+@router.get("/surveys/{survey_id:int}/photos/", response_model=list[PhotoOut])
+def serve_survey_photos(survey_id: int, db: Session = Depends(get_db)):
+    logger.info(f"Getting survey {survey_id} photos")
+    return get_survey_photos(db, survey_id)
+
+@router.post("/surveys/")
 def post_and_process_survey(new_data: FieldSurveyCreate, db: Session = Depends(get_db)):
     
     # First check survey's folder validty
