@@ -7,6 +7,7 @@ from geoalchemy2 import WKTElement
 
 class PhotoOut(BaseModel):
     id : int
+    local_index : int
     filename: str
     filepath: str
     coords: Optional[list[float]] = None
@@ -19,6 +20,7 @@ class PhotoOut(BaseModel):
 
 class PhotoCreate(BaseModel) :
     filename: str
+    local_index: int
     filepath: str
     coords: Optional[list[float]] = None
     datetime: Optional[datetime]

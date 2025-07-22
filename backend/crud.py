@@ -46,6 +46,22 @@ def get_survey_data(db: Session, survey_id: int):
 def get_survey_photos(db: Session, survey_id: int):
     return db.query(Photo).filter(Photo.survey_id == survey_id)
 
+def get_survey_photos_abovewater(db: Session, survey_id: int):
+    return (
+        db.query(Photo)
+        .filter(Photo.survey_id == survey_id)
+        .filter(Photo.is_underwater == False)
+        .all()
+    )
+
+def get_survey_photos_underwater(db: Session, survey_id: int):
+    return (
+        db.query(Photo)
+        .filter(Photo.survey_id == survey_id)
+        .filter(Photo.is_underwater == True)
+        .all()
+    )
+
 def update_survey_with_first_photo(db: Session, survey: FieldSurvey, photo: Photo):
     if not survey or not photo:
         return

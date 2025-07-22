@@ -1,8 +1,10 @@
-import { loadPhotoInPanel } from './impagePanel.js'
+import { changePhotoDisplayToIndex } from './navigationLogic.js'
 
 let map
 let markerGroup
+let navMarkerGroup
 let backControl = null 
+let navMarker = null;
 
 export function initMap() {
   map = L.map('map').setView([43.6, 3.9], 4)
@@ -12,6 +14,7 @@ export function initMap() {
   }).addTo(map)
 
   markerGroup = L.layerGroup().addTo(map)
+  navMarkerGroup = L.layerGroup().addTo(map)
 }
 
 export function setDefaultView(){
@@ -31,7 +34,7 @@ export function addBackButtonControl() {
       button.title = 'Back to Survey List'
       button.href = '#/'
       button.style.padding = '4px 8px'
-      button.style.cursor = 'pointer'
+      button.style.cursor = 'Back'
       button.style.textDecoration = 'none'
       button.style.backgroundColor = 'white'
       button.style.color = '#333'
@@ -53,18 +56,18 @@ export function removeBackButtonControl() {
 
 export function addPhotoMarkers(photos) {
   photos.forEach(photo => {
-    if (photo.coords) {
+    if ((photo.coords) && (photo.local_index % 5 == 0)) {
       const marker = L.circleMarker([photo.coords[0], photo.coords[1]], {
-        radius: 4,
+        radius: 2,
         color: "#9f36f1",
         fillColor: "#9f36f1",
         fillOpacity: 1
       })
 
-      marker.bindPopup(`<b>${photo.filename}</b><br>${photo.datetime || ''}`)
+      marker.bindPopup(`<b>${photo.filename}</b>`)
 
       marker.on('click', () => {
-        loadPhotoInPanel(photo.filepath)
+        changePhotoDisplayToIndex(photo.local_index)
       })
 
       marker.addTo(markerGroup)
@@ -106,10 +109,30 @@ export function addSurveysMarkers(surveys) {
   })
 }
 
-export function clearPhotoMarkers() {
-  if (markerGroup) markerGroup.clearLayers()
+export function updateNavMarker(lat,lng){
+  const position = [lat, lng];
+
+  if (navMarker) {
+    // Move existing marker
+    navMarker.setLatLng(position);
+  } else {
+    // Create it the first time
+    navMarker = L.marker(position, {
+      color: "#9f36f1",
+      fillColor: "#9f36f1",
+      fillOpacity: 1
+    })
+    navMarker.addTo(navMarkerGroup);
+  }
 }
 
+export function clearPhotoMarkers() {
+  if (markerGroup) markerGroup.clearLayers();
+  if (navMarkerGroup) {
+    navMarkerGroup.clearLayers()  
+    navMarker = null;
+  }
+}
 
 export function refreshMap() {
   if (map) map.invalidateSize()

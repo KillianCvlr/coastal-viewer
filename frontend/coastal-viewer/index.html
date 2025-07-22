@@ -10,7 +10,17 @@
   <body>
     <div id="container">
       <div id="container-nav">
-        <div id="map"></div>
+        <div id="map">
+          <button id="toggle-info-btn">☰</button>
+          <!-- Info bar slides underneath -->
+          <div id="photo-info-bar" class="hidden">
+            <div id="photo-info-content">
+              <p><strong>Photo ID:</strong> 1234</p>
+              <p><strong>Timestamp:</strong> 2023-04-01 12:45</p>
+              <p><strong>Coordinates:</strong> 48.85, 2.35</p>
+            </div>
+          </div>
+        </div>
         <div id="resizer-raw"></div>
         <div id="nav">
             <a href="/add-survey/" class="btn">Add a Field Survey</a>
@@ -20,6 +30,8 @@
             <label class="btn">
                 <input type="checkbox" id="magnifying-toggle"> Zoom Mode
             </label>
+            <button id="nav-prev" class="btn">Previous</button>
+            <button id="nav-next" class="btn">Next</button>
         </div>
       </div>
       <div id="resizer-col"></div>

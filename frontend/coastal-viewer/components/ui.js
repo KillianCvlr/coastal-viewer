@@ -1,4 +1,5 @@
 import { refreshMap } from './map.js'
+import {nextPhotoDisplayIndex, previousPhotoDisplayIndex} from './navigationLogic.js'
 
 
 export function isFullResEnabled() {
@@ -64,3 +65,11 @@ export function setupResizers() {
     refreshMap();
   });
 }
+
+document.getElementById('nav-prev').addEventListener('click', () => {
+  nextPhotoDisplayIndex()
+})
+
+document.getElementById('nav-next').addEventListener('click', () => {
+  previousPhotoDisplayIndex()
+})

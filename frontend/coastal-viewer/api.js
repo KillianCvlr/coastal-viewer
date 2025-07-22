@@ -19,6 +19,25 @@ export async function fetchSurveyPhotos(surveyId) {
   return res.json()
 }
 
+export async function fetchSurveyPhotosUnderWater(surveyId) {
+  const res = await fetch(`/surveys/${surveyId}/photos/underWater/`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!res.ok) throw new Error("Failed to fetch survey photos underwater")
+  return res.json()
+}
+
+export async function fetchSurveyPhotosAboveWater(surveyId) {
+  const res = await fetch(`/surveys/${surveyId}/photos/aboveWater/`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!res.ok) throw new Error("Failed to fetch survey photos above ater")
+  return res.json()
+}
+
+
 export async function fetchSurveys() {
   const res = await fetch(`/surveys/`, {
     method: 'GET',

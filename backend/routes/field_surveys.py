@@ -4,7 +4,8 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 from db import get_db
 from schemas import FieldSurveyCreate, PhotoOut, FieldSurveyData
-from crud import create_survey, add_photos, update_survey_with_first_photo, get_first_photo_with_location, get_all_surveys_data, get_survey_data, get_survey_photos
+from crud import create_survey, add_photos, update_survey_with_first_photo, get_all_surveys_data, get_survey_data, get_survey_photos
+from crud import get_survey_photos_abovewater, get_survey_photos_underwater, get_first_photo_with_location
 from pathlib import Path
 from logger import logger
 from utils import parse_photos_from_folder, get_conflicting_folder, is_existing_folder, internal_folder_conflict
@@ -25,6 +26,16 @@ def serve_survey_data(survey_id: int, db: Session = Depends(get_db)):
 def serve_survey_photos(survey_id: int, db: Session = Depends(get_db)):
     logger.info(f"Getting survey {survey_id} photos")
     return get_survey_photos(db, survey_id)
+
+@router.get("/surveys/{survey_id:int}/photos/aboveWater/", response_model=list[PhotoOut])
+def serve_survey_photos(survey_id: int, db: Session = Depends(get_db)):
+    logger.info(f"Getting survey {survey_id} photos")
+    return get_survey_photos_abovewater(db, survey_id)
+
+@router.get("/surveys/{survey_id:int}/photos/underWater/", response_model=list[PhotoOut])
+def serve_survey_photos(survey_id: int, db: Session = Depends(get_db)):
+    logger.info(f"Getting survey {survey_id} photos")
+    return get_survey_photos_underwater(db, survey_id)
 
 @router.post("/surveys/")
 def post_and_process_survey(new_data: FieldSurveyCreate, db: Session = Depends(get_db)):

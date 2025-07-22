@@ -11,6 +11,8 @@ let zoomLevel = 3
 const maxZoom = 10
 const minZoom = 1
 
+// Loupe logic
+
 function enableCursorTracking(imageElement) {
   // Loupe Logic
   imageElement.addEventListener('mouseenter', () => {
@@ -31,7 +33,7 @@ function enableCursorTracking(imageElement) {
     loupe.style.left = `${x - loupe.offsetWidth / 2}px`
     loupe.style.top = `${y - loupe.offsetHeight / 2}px`
 
-      // Set loupe image scale and position
+    // Set loupe image scale and position
     loupeImage.style.width = `${imageElement.width * zoomLevel}px`
     loupeImage.style.height = `${imageElement.height * zoomLevel}px`
 
@@ -51,7 +53,20 @@ function enableCursorTracking(imageElement) {
     zoomLevel -= delta * 0.2;
     zoomLevel = Math.min(maxZoom, Math.max(minZoom, zoomLevel));
 
-    // updateLoupeZoom(); // function you'll define to re-render loupe
+    const imageRect = imageElement.getBoundingClientRect()
+    const x = e.clientX
+    const y = e.clientY
+    const mouseX = x - imageRect.left
+    const mouseY = y - imageRect.top
+
+    // Set loupe image scale and position
+    loupeImage.style.width = `${imageElement.width * zoomLevel}px`
+    loupeImage.style.height = `${imageElement.height * zoomLevel}px`
+
+    // Move loupe image so that cursor position is centered in the loupe
+    loupeImage.style.left = `${-mouseX * zoomLevel + loupe.offsetWidth / 2}px`
+    loupeImage.style.top = `${-mouseY * zoomLevel + loupe.offsetHeight / 2}px`
+
   });
 }
 
@@ -61,20 +76,29 @@ export function initLoupe() {
   enableCursorTracking(secondImage)
 }
 
-
-export async function loadPhotoInPanel(photoPath) {
+export async function loadPhotoInPanelMain(photoPath) {
     fetchPhoto(photoPath)
     .then(blob => {
         const imageObjectUrl = URL.createObjectURL(blob)
         const aboveWaterImage = document.getElementById('main-image')
-        const UnderWaterImage = document.getElementById('second-image')
 
         aboveWaterImage.src = imageObjectUrl
-        UnderWaterImage.src = imageObjectUrl
     })
     .catch(err => {
         console.error("Failed to load image:", err)
         document.getElementById('main-image').src = ""
+    })
+}
+export async function loadPhotoInPanelSecond(photoPath) {
+    fetchPhoto(photoPath)
+    .then(blob => {
+        const imageObjectUrl = URL.createObjectURL(blob)
+        const UnderWaterImage = document.getElementById('second-image')
+
+        UnderWaterImage.src = imageObjectUrl
+    })
+    .catch(err => {
+        console.error("Failed to load image:", err)
         document.getElementById('second-image').src = ""
     })
 }

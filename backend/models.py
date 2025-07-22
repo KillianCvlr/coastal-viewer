@@ -12,13 +12,14 @@ from geoalchemy2.shape import to_shape
 class Photo(Base):
     __tablename__ = "photos"
 
+    local_index = Column(Integer, default = -1)
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String, index=True)
     filepath = Column(String, unique=True, index=True)
     location = Column(Geography(geometry_type='POINT', srid=4326))
     datetime = Column(DateTime)
     description = Column(String)
-    is_underwater = Column(Boolean, default=False) 
+    is_underwater = Column(Boolean, default=False, index=True) 
     
     @hybrid_property
     def coords(self):
