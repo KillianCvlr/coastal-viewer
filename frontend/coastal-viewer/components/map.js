@@ -63,9 +63,6 @@ export function addPhotoMarkers(photos) {
         fillColor: "#9f36f1",
         fillOpacity: 1
       })
-
-      marker.bindPopup(`<b>${photo.filename}</b>`)
-
       marker.on('click', () => {
         changePhotoDisplayToIndex(photo.local_index)
       })

@@ -2,9 +2,9 @@ import {fetchPhoto } from '../api.js'
 import { isMagnyfingEnabled } from './ui.js'
 
 const loupe = document.getElementById('loupe')
-const mainImage = document.getElementById('main-image')
-const secondImage = document.getElementById('second-image')
 const imagePanel = document.getElementById('image-panel')
+const aboveWaterImage = document.getElementById('main-image')
+const underWaterImage = document.getElementById('second-image')
 const loupeImage = document.getElementById('loupe-image')
 
 let zoomLevel = 3 
@@ -72,30 +72,37 @@ function enableCursorTracking(imageElement) {
 
 export function initLoupe() {
   // Enable for both images
-  enableCursorTracking(mainImage)
-  enableCursorTracking(secondImage)
+  enableCursorTracking(aboveWaterImage)
+  enableCursorTracking(underWaterImage)
 }
+
+
 
 export async function loadPhotoInPanelMain(photoPath) {
     fetchPhoto(photoPath)
     .then(blob => {
-        const imageObjectUrl = URL.createObjectURL(blob)
-        const aboveWaterImage = document.getElementById('main-image')
+        const newObjectUrl = URL.createObjectURL(blob)
 
-        aboveWaterImage.src = imageObjectUrl
+        // Revoke only if the previous URL was a blob
+        const oldSrc = aboveWaterImage.src
+        aboveWaterImage.src = newObjectUrl
+
+        if (oldSrc.startsWith("blob:")) {
+            URL.revokeObjectURL(oldSrc)
+        }
     })
     .catch(err => {
         console.error("Failed to load image:", err)
         document.getElementById('main-image').src = ""
     })
 }
+
 export async function loadPhotoInPanelSecond(photoPath) {
     fetchPhoto(photoPath)
     .then(blob => {
         const imageObjectUrl = URL.createObjectURL(blob)
-        const UnderWaterImage = document.getElementById('second-image')
-
-        UnderWaterImage.src = imageObjectUrl
+        URL.revokeObjectURL(underWaterImage.src)
+        underWaterImage.src = imageObjectUrl
     })
     .catch(err => {
         console.error("Failed to load image:", err)

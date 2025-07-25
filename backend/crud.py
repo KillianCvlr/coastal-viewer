@@ -1,13 +1,15 @@
 ### backend/crud.py
-from sqlalchemy.orm import Session
-from models import Photo
-from schemas import PhotoCreate
+from sqlalchemy.orm import Session, joinedload
+from models import Photo, Tag
+from schemas import PhotoCreate, TagBase, TagCreate
 from typing import List
+
+
 def get_all_photos_data(db: Session):
-    return db.query(Photo).all()
+    return db.query(Photo).options(joinedload(Photo.tags)).all()
 
 def get_photo_data_by_id(db: Session, photo_id: int):
-    return db.query(Photo).filter(Photo.id == photo_id).first()
+    return db.query(Photo).options(joinedload(Photo.tags)).filter(Photo.id == photo_id).first()
 
 def add_photos(db: Session, photos: List[PhotoCreate]):
     for photo in photos:
@@ -30,7 +32,7 @@ from shapely.geometry import Point
 
 def create_survey(db: Session, survey_data: FieldSurveyCreate):
     new_survey = FieldSurvey(
-        **survey_data.dict(),
+        **survey_data.dict()
     )
     db.add(new_survey)
     db.commit()
@@ -44,7 +46,7 @@ def get_survey_data(db: Session, survey_id: int):
     return db.query(FieldSurvey).filter(FieldSurvey.id == survey_id).first()
 
 def get_survey_photos(db: Session, survey_id: int):
-    return db.query(Photo).filter(Photo.survey_id == survey_id)
+    return db.query(Photo).options(joinedload(Photo.tags)).filter(Photo.survey_id == survey_id)
 
 def get_survey_photos_abovewater(db: Session, survey_id: int):
     return (
@@ -71,3 +73,38 @@ def update_survey_with_first_photo(db: Session, survey: FieldSurvey, photo: Phot
 
 def get_num_surveys(db: Session):
     return db.query(FieldSurvey).count()
+
+################################## TAG CRUD ###################################
+def read_all_tags(db: Session):
+    return db.query(Tag).all()
+
+def get_tag_by_name(db: Session, name:str):
+    return db.query(Tag).filter(Tag.name == name).first()
+
+def get_tag_by_id(db: Session, id:int):
+    return db.query(Tag).filter(Tag.id == id).first()
+
+def delete_tag_by_id(db: Session, tag_id: int):
+    tag = db.query(Tag).filter(Tag.id == tag_id).first()
+    if not tag:
+        return None
+    db.delete(tag)
+    db.commit()
+    return tag
+
+def delete_tag_by_name(db: Session, tag_name:str):
+    tag = db.query(Tag).filter(Tag.name == tag_name).first()
+    if not tag:
+        return None
+    db.delete(tag)
+    db.commit()
+    return tag
+
+
+
+def create_tag(db: Session, tag:TagCreate):
+    new_tag = Tag(**tag.dict())
+    db.add(new_tag)
+    db.commit()
+    db.refresh(new_tag)
+    return new_tag

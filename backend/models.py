@@ -1,5 +1,5 @@
 ### backend/models.py
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, Table
 from sqlalchemy.orm import relationship
 from db import Base
 from geoalchemy2 import Geography
@@ -8,6 +8,14 @@ from geoalchemy2 import Geometry
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import func
 from geoalchemy2.shape import to_shape
+
+
+photo_tags = Table(
+    'photo_tags',
+    Base.metadata,
+    Column('photo_id', ForeignKey('photos.id', ondelete="CASCADE"), primary_key=True),
+    Column('tag_id', ForeignKey('tags.id', ondelete="CASCADE"), primary_key=True)
+)
 
 class Photo(Base):
     __tablename__ = "photos"
@@ -29,9 +37,14 @@ class Photo(Base):
             return [point.x, point.y]
         else:
             return None
+
+    @property
+    def tag_ids(self):
+        return [tag.id for tag in self.tags]
         
     survey_id = Column(Integer, ForeignKey("field_surveys.id", ondelete="CASCADE"))
     survey = relationship("FieldSurvey", back_populates="photos")
+    tags = relationship("Tag", secondary=photo_tags, back_populates="photos")
         
 class FieldSurvey(Base):
     __tablename__ = "field_surveys"
@@ -54,3 +67,13 @@ class FieldSurvey(Base):
             return [point.x, point.y]
         else:
             return None
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+    color = Column(String, nullable = False)
+
+    photos = relationship("Photo", secondary=photo_tags, back_populates="tags")

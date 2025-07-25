@@ -14,24 +14,57 @@
           <button id="toggle-info-btn">☰</button>
           <!-- Info bar slides underneath -->
           <div id="photo-info-bar" class="hidden">
-            <div id="photo-info-content">
-              <p><strong>Photo ID:</strong> 1234</p>
-              <p><strong>Timestamp:</strong> 2023-04-01 12:45</p>
-              <p><strong>Coordinates:</strong> 48.85, 2.35</p>
-            </div>
+            <div id="photo-info-content"></div>
           </div>
         </div>
         <div id="resizer-raw"></div>
         <div id="nav">
-            <a href="/add-survey/" class="btn">Add a Field Survey</a>
+          <a href="/add-survey/" class="btn">Add a Field Survey</a>
             <label class="btn">
-                <input type="checkbox" id="fullres-toggle"> Full resolution
+              <input type="checkbox" id="fullres-toggle"> Full resolution
             </label>
             <label class="btn">
-                <input type="checkbox" id="magnifying-toggle"> Zoom Mode
+              <input type="checkbox" id="magnifying-toggle"> Zoom Mode
             </label>
             <button id="nav-prev" class="btn">Previous</button>
             <button id="nav-next" class="btn">Next</button>
+
+            <!-- Create Tag Option with Modal -->
+            <button id="openTagModalBtn">➕ New Tag</button>
+            <div id="tagModal" class="modal hidden">
+              <div class="modal-content">
+                <span id="closeTagModalBtn" class="close">&times;</span>
+                <h3>Existing tags</h3>
+                <div id="modal-tag-list"></div>
+
+                <h3>Manage Tags</h3>
+                <input type="text" id="newTagName" placeholder="Tag name" />
+                <button id="deleteTagBtn" class="btn" style="background:#ca0e0e;">Delete</button>
+
+                <div style="display: flex; gap: 8px; margin: 5px 0;">
+                  <!-- Predefined colors -->
+                  <button type="button" class="color-choice" data-color="#000000" style="background:#000000; width:24px; height:24px; border:none; cursor:pointer;"></button>
+                  <button type="button" class="color-choice" data-color="#dfc012" style="background:#dfc012; width:24px; height:24px; border:none; cursor:pointer;"></button>
+                  <button type="button" class="color-choice" data-color="#df7016" style="background:#df7016; width:24px; height:24px; border:none; cursor:pointer;"></button>
+                  <button type="button" class="color-choice" data-color="#ca0e0e" style="background:#ca0e0e; width:24px; height:24px; border:none; cursor:pointer;"></button>
+                  <button type="button" class="color-choice" data-color="#791207" style="background:#791207; width:24px; height:24px; border:none; cursor:pointer;"></button>
+                  <button type="button" class="color-choice" data-color="#a819a1" style="background:#a819a1; width:24px; height:24px; border:none; cursor:pointer;"></button>
+                  <button type="button" class="color-choice" data-color="#16139e" style="background:#16139e; width:24px; height:24px; border:none; cursor:pointer;"></button>
+                  <button type="button" class="color-choice" data-color="#2062ad" style="background:#2062ad; width:24px; height:24px; border:none; cursor:pointer;"></button>
+                  <button type="button" class="color-choice" data-color="#1ca857" style="background:#1ca857; width:24px; height:24px; border:none; cursor:pointer;"></button>
+                  <button type="button" class="color-choice" data-color="#136808" style="background:#136808; width:24px; height:24px; border:none; cursor:pointer;"></button>
+                </div>
+
+                <!-- Color picker input -->
+                <input type="color" id="tag-color-picker" value="#3498db" />
+
+                <!-- Optional hex input -->
+                <input type="text" id="tag-color-hex" value="#3498db" pattern="^#([0-9A-Fa-f]{6})$" />
+
+                <button id="createTagBtn" class="btn">Create</button>
+                <p id="tagError" class="error"></p>
+              </div>
+            </div>
         </div>
       </div>
       <div id="resizer-col"></div>

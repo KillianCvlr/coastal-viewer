@@ -14,7 +14,6 @@ export async function updateNavListAbove(photoList){
 }
 export async function updateNavListUnder(photoList){
     underNavList = photoList.sort((a, b) => a.local_index - b.local_index)
-    navListLength = underNavList.length
 }
 
 export async function changePhotoDisplayToIndex(i){
@@ -42,7 +41,7 @@ export async function updatePanelPhoto(){
   const photoDisplayAbove = aboveNavList[photoDisplayIndex]
   const photoDisplayUnder = underNavList[photoDisplayIndex]
   if(photoDisplayAbove.coords) {updateNavMarker(photoDisplayAbove.coords[0], photoDisplayAbove.coords[1])}
-  updatePhotoInfoBar(photoDisplayAbove)
+  updatePhotoInfoBar(photoDisplayAbove, photoDisplayUnder)
   loadPhotoInPanelMain(photoDisplayAbove.filepath)
   loadPhotoInPanelSecond(photoDisplayUnder.filepath)
 }

@@ -13,6 +13,7 @@ CREATE TABLE  IF NOT EXISTS field_surveys (
 
 CREATE TABLE IF NOT EXISTS photos (
   id SERIAL PRIMARY KEY,
+  local_index INTEGER DEFAULT (-1),
   filename TEXT,
   filepath TEXT UNIQUE,
   datetime TIMESTAMP,
@@ -22,3 +23,14 @@ CREATE TABLE IF NOT EXISTS photos (
   survey_id INTEGER REFERENCES field_surveys(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS tags (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL,
+  color TEXT
+);
+
+CREATE TABLE IF NOT EXISTS photo_tags (
+  photo_id INTEGER REFERENCES photos(id) ON DELETE CASCADE,
+  tag_id INTEGER REFERENCES tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (photo_id, tag_id)
+);

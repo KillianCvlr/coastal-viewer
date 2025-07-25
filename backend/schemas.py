@@ -5,6 +5,24 @@ from fastapi import Form
 from geoalchemy2 import WKTElement
 
 
+
+######################   Photo TAGS   #################################
+
+class TagBase(BaseModel):
+    name: str
+    color: Optional[str] = Field(..., pattern=r'^#(?:[0-9a-fA-F]{3}){1,2}$')
+
+class TagCreate(TagBase):
+    pass
+
+class TagOut(TagBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+######################   Photo      #################################
+
 class PhotoOut(BaseModel):
     id : int
     local_index : int
@@ -14,9 +32,13 @@ class PhotoOut(BaseModel):
     datetime: Optional[datetime]
     is_underwater: Optional[bool]
     survey_id: Optional[int]
+    tags: Optional[list[int]] = Field(..., alias="tag_ids")
 
+    
     class Config:
         orm_mode = True
+        allow_population_by_field_name = True
+
 
 class PhotoCreate(BaseModel) :
     filename: str
@@ -68,3 +90,4 @@ class FieldSurveyUpdate(BaseModel):
 
     class Config:
         orm_mode = True
+

@@ -68,3 +68,48 @@ export async function fetchDownscaledPhoto(photoPath) {
   if (!res.ok) throw new Error("Failed to downscaled res photo")
   return res.blob()
 }
+
+export async function fetchTags() {
+  const res = await fetch('/tags/', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      })
+  if (!res.ok) throw new Error("Failed to fetch tags")
+  return res.json()
+}
+
+
+export async function postNewTag(tagName, color){
+  const res = await fetch('/tags/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name:tagName, color })
+  });
+
+  const data = await res.json();
+  if (!res.ok) {
+    // Raise error object to be handled in UI
+    let msg = "Unknown error";
+    if (data?.detail) {
+      if (Array.isArray(data.detail)) {
+        msg = data.detail.map(err => `• ${err.loc.at(-1)}: ${err.msg}`).join('\n');
+      } else if (typeof data.detail === "string") {
+        msg = data.detail;
+      }
+    }
+    throw new Error(msg);
+  }
+
+  return data; // new tag object
+}
+
+export async function deleteTag(tagName) {
+  const res = await fetch(`/tags/${tagName}/`, {
+    method: 'DELETE'
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || "Error deleting tag.");
+  }
+} 
