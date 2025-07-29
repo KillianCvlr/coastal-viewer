@@ -5,7 +5,8 @@ from pydantic import ValidationError
 from db import get_db
 from schemas import FieldSurveyCreate, PhotoOut, FieldSurveyData
 from crud import create_survey, add_photos, update_survey_with_first_photo, get_all_surveys_data, get_survey_data, get_survey_photos
-from crud import get_survey_photos_abovewater, get_survey_photos_underwater, get_first_photo_with_location
+from crud import get_survey_photos_abovewater, get_survey_photos_underwater, get_first_photo_with_location, get_count_survey_abovewater_photos, get_count_survey_underwater_photos
+from crud import delete_survey_by_id
 from pathlib import Path
 from logger import logger
 from utils import parse_photos_from_folder, get_conflicting_folder, is_existing_folder, internal_folder_conflict
@@ -36,6 +37,20 @@ def serve_survey_photos(survey_id: int, db: Session = Depends(get_db)):
 def serve_survey_photos(survey_id: int, db: Session = Depends(get_db)):
     logger.info(f"Getting survey {survey_id} photos")
     return get_survey_photos_underwater(db, survey_id)
+
+@router.delete("/surveys/{survey_id:int}/", status_code=204)
+def delete_survey_by_id_route(survey_id: int, db: Session = Depends(get_db)):
+    logger.info(f"Deleting Survey by Id : {survey_id}")
+    db_survey = get_survey_data(db, survey_id)
+    if not db_survey: 
+        logger.info(f"No survey with ID {survey_id} found")
+        raise HTTPException(status_code=500, detail=f"No Survey with Id {survey_id} found")
+    nb_underwater = get_count_survey_underwater_photos(db, survey_id)
+    nb_abovewater = get_count_survey_abovewater_photos(db, survey_id)
+    delete_survey_by_id(db, survey_id)
+    logger.info(f"Survey {survey_id} deleted")
+    logger.info(f"Deleting {nb_abovewater} abovewater photos and {nb_underwater} underwater photos relations")
+    return
 
 @router.post("/surveys/")
 def post_and_process_survey(new_data: FieldSurveyCreate, db: Session = Depends(get_db)):
@@ -68,7 +83,7 @@ def post_and_process_survey(new_data: FieldSurveyCreate, db: Session = Depends(g
         raise HTTPException(status_code=500, detail="Failed to create field survey in database")
     
     # Survey created and sent to database
-    logger.info(f"Created Survey : {survey.survey_name} with id {survey.id}")
+    logger.info(f"Created Survey : {survey.survey_name} with id {survey.id}...")
 
     # Parsing photos from NAS to send details to database
     logger.info("Parsing photos...")
@@ -91,6 +106,8 @@ def post_and_process_survey(new_data: FieldSurveyCreate, db: Session = Depends(g
         logger.info(f"Parsed a total of {len(photos_parsed)} photos")
     else : 
         logger.info("No Photo Parsed")
+
+    logger.info(f"✅ Successfuly added survey {survey.survey_name} with id : {survey.id} and {len(photos_parsed)} photos to database")
 
     return {"survey_id": survey.id, "total_photo_parsed": len(photos_parsed), "localisation_added": actualised_field_trip }
 

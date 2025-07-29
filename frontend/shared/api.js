@@ -1,6 +1,4 @@
 
-import {isFullResEnabled} from './components/ui.js'
-
 export async function fetchPhotos() {
   const res = await fetch('/photos/', {
         method: 'GET',
@@ -45,12 +43,6 @@ export async function fetchSurveys() {
   })
   if (!res.ok) throw new Error("Failed to fetch surveys")
   return res.json()
-}
-
-export async function fetchPhoto(photoPath){
-    const fetchFunction = isFullResEnabled() ? fetchFullResPhoto : fetchDownscaledPhoto
-    const blob = await fetchFunction(photoPath)
-    return blob
 }
 
 export async function fetchFullResPhoto(photoPath) {
@@ -113,3 +105,31 @@ export async function deleteTag(tagName) {
     throw new Error(error.detail || "Error deleting tag.");
   }
 } 
+
+
+export async function postSurvey(surveyData){
+  const res = await fetch('/surveys/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(surveyData),
+      });   
+
+  if (!res.ok){
+    const error = await res.json();
+    throw new Error(error.detail || "Error Posting Survey");
+  }
+  return res.json()
+}
+
+
+export async function deleteSurvey(surveyID){
+  const res = await fetch(`/surveys/${surveyID}/`, {
+        method: 'DELETE',
+      });   
+
+  if (!res.ok){
+    const error = await res.json();
+    throw new Error(error.detail || "Error deleting Survey");
+  }
+  return
+}

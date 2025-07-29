@@ -48,8 +48,10 @@ def parse_photos_from_folder(
         logger.error(f"Parsing with non existent folder path {folder_path}")
         return photo_list
     
-    logger.info("Parsing folder \"%s\" with absolute path %s", folder_path, abs_path)
-    for root, _, files in os.walk(abs_path):
+    logger.info("Reccursively parsing folder \"%s\" with absolute path %s", folder_path, abs_path)
+    for root, dirs, files in os.walk(abs_path):
+        dirs.sort()   # Ensure os.walk descends into directories in alphabetical order
+        logger.info("Parsing folder \"%s\" ", root)
         for fname in files:
             if fname.lower().endswith(('.jpg', '.jpeg', '.png')):
                 full_path = os.path.join(root, fname)
@@ -88,7 +90,6 @@ def parse_photos_from_folder(
                 logger.debug(f"Parsed photo : {photo.filename}, {photo.filepath}, {photo.datetime}, "
                 f"{photo.coords}, {photo.is_underwater}, {photo.survey_id}"
                 )'''
-
                 photo_list.append(photo)
     logger.info(f"Parsed {len(photo_list)} photos in {folder_path}")
     # Adding local indexes

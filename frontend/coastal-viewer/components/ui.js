@@ -1,6 +1,6 @@
-import { deleteTag, postNewTag } from '../api.js';
+import { deleteTag, postNewTag } from '../../shared/api.js';
 import { refreshMap } from './map.js'
-import {nextPhotoDisplayIndex, previousPhotoDisplayIndex} from './navigationLogic.js'
+import {addToDisplayIndex, nextPhotoDisplayIndex, previousPhotoDisplayIndex, subToDisplayIndex} from './navigationLogic.js'
 import { getTagsByIds, updateTagsList } from './tagLogic.js';
 
 ///////////////////////////////RESIZERS//////////////////////////////////////// 
@@ -25,6 +25,7 @@ export function setupResizers() {
     isResizingCol = true;
     document.body.style.cursor = "col-resize";
   })
+  
 
   window.addEventListener("mousemove", e => {
     if (!isResizingCol) return;
@@ -72,11 +73,11 @@ export function setupResizers() {
 //////////////////////////////Nav-Buttons//////////////////////////////////////
 
 document.getElementById('nav-prev').addEventListener('click', () => {
-  nextPhotoDisplayIndex()
+  previousPhotoDisplayIndex()
 })
 
 document.getElementById('nav-next').addEventListener('click', () => {
-  previousPhotoDisplayIndex()
+  nextPhotoDisplayIndex()
 })
 
 /////////////////////////////Tag Logic/////////////////////////////////////////
@@ -102,7 +103,7 @@ closeBtn.addEventListener('click', () => {
 
 createBtn.addEventListener('click', async () => {
   const tagName = document.getElementById('newTagName').value.trim();
-  const color = document.getElementById('tag-color-hex').value
+  const color = document.getElementById('tag-color-picker').value
   if (!tagName) {
     tagError.textContent = 'Please enter a tag name.';
     return;
@@ -128,7 +129,7 @@ createBtn.addEventListener('click', async () => {
 });
 
 deleteBtn.addEventListener('click', async () =>{
-  const tagName = document.getElementById('newTagName').value.trim();
+  const tagName = document.getElementById('deleteTagName').value.trim();
   // TO DO 
   if (!tagName) {
     tagError.textContent = 'Please enter a tag name.';
@@ -152,23 +153,24 @@ deleteBtn.addEventListener('click', async () =>{
 
 const colorButtons = document.querySelectorAll('.color-choice')
 const colorPicker = document.getElementById('tag-color-picker')
-const colorHexInput = document.getElementById('tag-color-hex')
 
 colorButtons.forEach(btn => {
   btn.addEventListener('click', () => {
     const color = btn.getAttribute('data-color')
     colorPicker.value = color
-    colorHexInput.value = color
   })
 })
 
-colorPicker.addEventListener('input', () => {
-  colorHexInput.value = colorPicker.value
-})
+document.getElementById("fast-prev").addEventListener("click", () => {
+  const amount = parseInt(document.getElementById("fast-travel-amount").value) || 1;
+  console.log(`Going back ${amount} steps`);
+  subToDisplayIndex(amount)
+  // your logic to go back
+});
 
-colorHexInput.addEventListener('input', () => {
-  if (/^#[0-9A-Fa-f]{6}$/.test(colorHexInput.value)) {
-    colorPicker.value = colorHexInput.value
-  }
-})
-
+document.getElementById("fast-next").addEventListener("click", () => {
+  const amount = parseInt(document.getElementById("fast-travel-amount").value) || 1;
+  console.log(`Going forward ${amount} steps`);
+  addToDisplayIndex(amount)
+  // your logic to go forward
+});

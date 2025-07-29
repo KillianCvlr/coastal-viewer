@@ -11,69 +11,81 @@
     <div id="container">
       <div id="container-nav">
         <div id="map">
-          <button id="toggle-info-btn">☰</button>
           <!-- Info bar slides underneath -->
           <div id="photo-info-bar" class="hidden">
             <div id="photo-info-content"></div>
           </div>
-        </div>
-        <div id="resizer-raw"></div>
-        <div id="nav">
-          <a href="/add-survey/" class="btn">Add a Field Survey</a>
+          <button id="toggle-info-btn">☰</button>
+          
+          <div id = "map-buttons-wrapper">
+            <a href="/survey-manager/" class="btn">Add a Field Survey</a>
+            <button id="openTagModalBtn" class="btn"> Manage Tags</button>
             <label class="btn">
               <input type="checkbox" id="fullres-toggle"> Full resolution
             </label>
             <label class="btn">
               <input type="checkbox" id="magnifying-toggle"> Zoom Mode
             </label>
-            <button id="nav-prev" class="btn">Previous</button>
-            <button id="nav-next" class="btn">Next</button>
+          </div>
+        </div>
 
-            <!-- Create Tag Option with Modal -->
-            <button id="openTagModalBtn">➕ New Tag</button>
-            <div id="tagModal" class="modal hidden">
-              <div class="modal-content">
-                <span id="closeTagModalBtn" class="close">&times;</span>
-                <h3>Existing tags</h3>
-                <div id="modal-tag-list"></div>
+        <div id="resizer-raw"></div>
 
-                <h3>Manage Tags</h3>
-                <input type="text" id="newTagName" placeholder="Tag name" />
-                <button id="deleteTagBtn" class="btn" style="background:#ca0e0e;">Delete</button>
-
-                <div style="display: flex; gap: 8px; margin: 5px 0;">
-                  <!-- Predefined colors -->
-                  <button type="button" class="color-choice" data-color="#000000" style="background:#000000; width:24px; height:24px; border:none; cursor:pointer;"></button>
-                  <button type="button" class="color-choice" data-color="#dfc012" style="background:#dfc012; width:24px; height:24px; border:none; cursor:pointer;"></button>
-                  <button type="button" class="color-choice" data-color="#df7016" style="background:#df7016; width:24px; height:24px; border:none; cursor:pointer;"></button>
-                  <button type="button" class="color-choice" data-color="#ca0e0e" style="background:#ca0e0e; width:24px; height:24px; border:none; cursor:pointer;"></button>
-                  <button type="button" class="color-choice" data-color="#791207" style="background:#791207; width:24px; height:24px; border:none; cursor:pointer;"></button>
-                  <button type="button" class="color-choice" data-color="#a819a1" style="background:#a819a1; width:24px; height:24px; border:none; cursor:pointer;"></button>
-                  <button type="button" class="color-choice" data-color="#16139e" style="background:#16139e; width:24px; height:24px; border:none; cursor:pointer;"></button>
-                  <button type="button" class="color-choice" data-color="#2062ad" style="background:#2062ad; width:24px; height:24px; border:none; cursor:pointer;"></button>
-                  <button type="button" class="color-choice" data-color="#1ca857" style="background:#1ca857; width:24px; height:24px; border:none; cursor:pointer;"></button>
-                  <button type="button" class="color-choice" data-color="#136808" style="background:#136808; width:24px; height:24px; border:none; cursor:pointer;"></button>
-                </div>
-
-                <!-- Color picker input -->
-                <input type="color" id="tag-color-picker" value="#3498db" />
-
-                <!-- Optional hex input -->
-                <input type="text" id="tag-color-hex" value="#3498db" pattern="^#([0-9A-Fa-f]{6})$" />
-
-                <button id="createTagBtn" class="btn">Create</button>
-                <p id="tagError" class="error"></p>
-              </div>
-            </div>
+        <div id="nav">
+          <button id="nav-prev" class="btn">Previous</button>
+          <button id="nav-next" class="btn">Next</button>
+          <div id="fast-travel-bar">
+            <button id="fast-prev" class="btn">⏮️</button>
+            <input id="fast-travel-amount" type="number" min="1" value="5" />
+            <button id="fast-next" class="btn">⏭️</button>
+          </div>  
         </div>
       </div>
+      
       <div id="resizer-col"></div>
+      
       <div id="image-panel">
         <img id="main-image" />
         <img id="second-image" />
       </div>
+      
       <div id="loupe">
         <img id="loupe-image" />
+      </div>
+      <div id="tagModal" class="modal hidden">
+        <div class="modal-content">
+          <span id="closeTagModalBtn" class="close">&times;</span>
+          <h3>Existing tags</h3>
+          <div id="modal-tag-list"></div>
+
+          <h3>Delete Tag</h3>
+          <input type="text" id="deleteTagName" placeholder="Delete Tag" />
+          <button id="deleteTagBtn" class="btn" style="background:#ca0e0e;">Delete</button>
+
+          <h3>Create New Tag</h3>
+          <div style="display: flex; gap: 8px; margin: 5px 0;">
+            <!-- Predefined colors -->
+            <button type="button" class="color-choice" data-color="#000000" style="background:#000000; width:24px; height:24px; border:none; cursor:pointer;"></button>
+            <button type="button" class="color-choice" data-color="#dfc012" style="background:#dfc012; width:24px; height:24px; border:none; cursor:pointer;"></button>
+            <button type="button" class="color-choice" data-color="#df7016" style="background:#df7016; width:24px; height:24px; border:none; cursor:pointer;"></button>
+            <button type="button" class="color-choice" data-color="#ca0e0e" style="background:#ca0e0e; width:24px; height:24px; border:none; cursor:pointer;"></button>
+            <button type="button" class="color-choice" data-color="#791207" style="background:#791207; width:24px; height:24px; border:none; cursor:pointer;"></button>
+            <button type="button" class="color-choice" data-color="#a819a1" style="background:#a819a1; width:24px; height:24px; border:none; cursor:pointer;"></button>
+            <button type="button" class="color-choice" data-color="#16139e" style="background:#16139e; width:24px; height:24px; border:none; cursor:pointer;"></button>
+            <button type="button" class="color-choice" data-color="#2062ad" style="background:#2062ad; width:24px; height:24px; border:none; cursor:pointer;"></button>
+            <button type="button" class="color-choice" data-color="#1ca857" style="background:#1ca857; width:24px; height:24px; border:none; cursor:pointer;"></button>
+            <button type="button" class="color-choice" data-color="#136808" style="background:#136808; width:24px; height:24px; border:none; cursor:pointer;"></button>
+          </div>
+
+          <!-- Color picker input -->
+          <input type="color" id="tag-color-picker" value="#3498db" />
+
+          <!-- Optional hex input -->
+          <input type="text" id="newTagName" placeholder="New tag name" />
+
+          <button id="createTagBtn" class="btn">Create</button>
+          <p id="tagError" class="error"></p>
+        </div>
       </div>
     </div>
     <script type="module" src="/coastal-viewer/main.js"></script>

@@ -15,16 +15,16 @@ from PIL import Image
 router = APIRouter()
 
 @router.get("/photos/", response_model=list[PhotoOut])
-def read_photos(db: Session = Depends(get_db)):
+def get_photos(db: Session = Depends(get_db)):
     logger.info("Getting all the photosdata")
     return get_all_photos_data(db)
 
 @router.get("/photos/{photo_id:int}/data/", response_model=PhotoOut)
-def serve_photo_data(photo_id: int, db: Session = Depends(get_db)):
+def get_photo_data(photo_id: int, db: Session = Depends(get_db)):
     return get_photo_data_by_id(db, photo_id=photo_id)
 
 @router.get("/photos/{photo_path:path}/fullRes/")
-def serve_photo_by_id(photo_path: str):
+def serve_photo_by_path(photo_path: str):
     logger.info(f"get fullres photo request for {photo_path}")
     if ".." in photo_path or photo_path.startswith("/"):
         logger.error("Invalid Path Requested")
@@ -95,14 +95,14 @@ def assign_tags_to_photo(photo_id: int, tagList: list[int], db: Session = Depend
     return photoData
 
 @router.delete("/tags/{id:int}/", status_code=204)
-def post_new_tag(id:int, db: Session = Depends(get_db)):
+def delete_tag_by_id_route(id:int, db: Session = Depends(get_db)):
     db_tag = delete_tag_by_id(db,id)
     if not db_tag:
         raise HTTPException(status_code=400, detail="Tag does not exists")
     return
 
 @router.delete("/tags/{name:str}/", status_code=204)
-def post_new_tag(name:str, db: Session = Depends(get_db)):
+def delete_tag_by_name_route(name:str, db: Session = Depends(get_db)):
     db_tag = delete_tag_by_name(db,name)
     if not db_tag:
         raise HTTPException(status_code=400, detail="Tag does not exists")

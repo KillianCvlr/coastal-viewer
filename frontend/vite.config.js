@@ -5,7 +5,8 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        'coastal-viewer': 'coastal-viewer/index.html'
+        'coastal-viewer': 'coastal-viewer/index.html',
+        'survey-manager': 'survey-manager/index.html'
       },
     },
   },
@@ -27,6 +28,10 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/tags/': {
+        target: 'http://backend:8000',
+        changeOrigin: true,
+      },
+      '/logs/': {
         target: 'http://backend:8000',
         changeOrigin: true,
       },

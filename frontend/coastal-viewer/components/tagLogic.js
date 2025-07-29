@@ -1,4 +1,4 @@
-import { fetchTags } from "../api"
+import { fetchTags } from "../../shared/api"
 
 let tagsList = []
 const modalTagList = document.getElementById('modal-tag-list')

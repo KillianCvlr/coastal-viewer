@@ -1,3 +1,4 @@
+import { getAboveNavListLength, getUnderNavListLength } from "./navigationLogic";
 import { getTagsByIds, showTagBadges } from "./tagLogic";
 
 const infoContent = document.getElementById('photo-info-content');
@@ -14,6 +15,7 @@ toggleBtn.addEventListener('click', () => {
 
 export function updatePhotoInfoBar(photoAbove, photoUnder) {
     const lines = [];
+    let tagsAbove = [];
 
     // --- Handle photoAbove ---
     if (!photoAbove) {
@@ -23,6 +25,7 @@ export function updatePhotoInfoBar(photoAbove, photoUnder) {
 
     lines.push(`<h3>🌅 Above Water</h3>`);
 
+    lines.push(`Id : ${photoAbove.id}   |     Local :${photoAbove.local_index}/${getAboveNavListLength()}`);
     lines.push(`<p><strong>📄 Photo name:</strong><br>${photoAbove.filename}</p>`);
 
     if (photoAbove.datetime) {
@@ -32,11 +35,12 @@ export function updatePhotoInfoBar(photoAbove, photoUnder) {
     if (photoAbove.coords) {
         lines.push(`<p><strong>📍 Coords:</strong><br>${photoAbove.coords[0].toFixed(5)}, ${photoAbove.coords[1].toFixed(5)}</p>`);
     }
-    //tagsAbove = getTagsByIds(photoAbove.tags)
-    //showTagBadges(tagsAbove)
+    tagsAbove = getTagsByIds(photoAbove.tag_ids)
+    showTagBadges(tagsAbove, infoContent)
     // --- Handle photoUnder if it exists ---
+    lines.push(`<hr><h3>🌊 Underwater</h3>`);
     if (photoUnder) {
-        lines.push(`<hr><h3>🌊 Underwater</h3>`);
+        lines.push(`Id : ${photoUnder.id}   |     Local :${photoUnder.local_index}/${getUnderNavListLength()}`);
         lines.push(`<p><strong>📄 Photo name:</strong><br>${photoUnder.filename}</p>`);
 
         if (photoUnder.datetime) {
@@ -46,6 +50,8 @@ export function updatePhotoInfoBar(photoAbove, photoUnder) {
         if (photoUnder.coords) {
             lines.push(`<p><strong>📍 Coords:</strong><br>${photoUnder.coords[0].toFixed(5)}, ${photoUnder.coords[1].toFixed(5)}</p>`);
         }
+    } else {
+        lines.push(`<p><strong>Underwater Photo not found </strong><br>Local : ????/${getUnderNavListLength()}</p>`);
     }
 
     // --- Final display ---

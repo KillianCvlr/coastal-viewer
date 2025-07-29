@@ -1,5 +1,5 @@
-import {fetchPhoto } from '../api.js'
-import { isMagnyfingEnabled } from './ui.js'
+import { isMagnyfingEnabled, isFullResEnabled } from './ui.js'
+import { fetchDownscaledPhoto, fetchFullResPhoto } from '../../shared/api.js'
 
 const loupe = document.getElementById('loupe')
 const imagePanel = document.getElementById('image-panel')
@@ -76,6 +76,11 @@ export function initLoupe() {
   enableCursorTracking(underWaterImage)
 }
 
+export async function fetchPhoto(photoPath){
+    const fetchFunction = isFullResEnabled() ? fetchFullResPhoto : fetchDownscaledPhoto
+    const blob = await fetchFunction(photoPath)
+    return blob
+}
 
 
 export async function loadPhotoInPanelMain(photoPath) {
@@ -100,9 +105,15 @@ export async function loadPhotoInPanelMain(photoPath) {
 export async function loadPhotoInPanelSecond(photoPath) {
     fetchPhoto(photoPath)
     .then(blob => {
-        const imageObjectUrl = URL.createObjectURL(blob)
-        URL.revokeObjectURL(underWaterImage.src)
-        underWaterImage.src = imageObjectUrl
+        const newObjectUrl = URL.createObjectURL(blob)
+
+        // Revoke only if the previous URL was a blob
+        const oldSrc = underWaterImage.src
+        underWaterImage.src = newObjectUrl
+
+        if (oldSrc.startsWith("blob:")) {
+            URL.revokeObjectURL(oldSrc)
+        }
     })
     .catch(err => {
         console.error("Failed to load image:", err)

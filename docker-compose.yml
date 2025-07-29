@@ -10,7 +10,7 @@ services:
       POSTGRES_DB: coastdb
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U coastuser -d coastdb -h localhost -p 5432"]
-      interval: 5s
+      interval: 2s
       timeout: 5s
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -23,19 +23,31 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
     volumes:
+      - ./backend:/app
+      # à changer pour le NAS (monté) en deploiement
       - ./rawphotos:/app/rawphotos:ro
     environment:
       - DATABASE_URL=postgresql://coastuser:coastpass@db:5432/coastdb
+      - PYTHONUNBUFFERED=1
     ports:
       - "8000:8000"
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:
-    image: nginx:alpine
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     volumes:
-      - ./frontend:/usr/share/nginx/html:ro
+      - ./frontend:/app
+      - /app/node_modules
     ports:
-      - "8080:80"
+      - "5173:5173"
+    depends_on:
+      - backend
+    command: sh -c "sleep 5 && npm install && npm run dev -- --host"
 
 volumes:
   pgdata:
+

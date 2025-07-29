@@ -1,4 +1,4 @@
-import { fetchSurveys } from '../api.js'
+import { fetchSurveys } from '../../shared/api.js'
 import { addSurveysMarkers, clearPhotoMarkers, removeBackButtonControl, setDefaultView  } from '../components/map.js'
 
 export async function renderSurveyList() {

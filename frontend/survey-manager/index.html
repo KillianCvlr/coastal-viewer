@@ -1,0 +1,45 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Coastal Viewer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="container">
+    
+    <div id="container-left">
+      <div>
+        <a href="/coastal-viewer/" class="btn">Return to coastal viewer</a>
+      </div>
+      <div id="survey-list"></div>
+    </div>
+    
+    <div id="container-right">
+
+      <form id="survey-form">
+        <input name="survey_name" placeholder="Survey Name" required>
+        <textarea name="comment" placeholder="Comment"></textarea>
+        <input name="abovewater_folder" placeholder="Above Water Folder">
+        <input name="underwater_folder" placeholder="Under Water Folder">
+        <input name="linking_file" placeholder="Linking File">
+        <button type="submit">Submit Survey</button>
+      </form>
+      
+      <div id="log-output" style="white-space: pre-wrap; font-family: monospace;"></div>
+    </div>
+
+    <div id="survey-modal" class="modal hidden">
+      <div class="modal-content" id="survey-modal-content">
+        <span id="close-survey-modal-btn" class="close">&times;</span>
+        <div id="survey-modal-text"></div>
+        <button id="return-survey-button-modal" class="btn">Return to survey list</button>
+        <button id="delete-survey-button-modal" class="delete-btn">Delete Survey</button>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="/survey-manager/main.js"></script>
+</body>
+</html>

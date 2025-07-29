@@ -1,11 +1,12 @@
-import { fetchSurveyPhotosAboveWater, fetchSurveyPhotosUnderWater, fetchTags } from '../api.js'
+import { fetchSurveyPhotosAboveWater, fetchSurveyPhotosUnderWater, fetchTags } from '../../shared/api.js'
 import { addPhotoMarkers, clearPhotoMarkers, addBackButtonControl } from '../components/map.js'
-import { updateNavListUnder, updateNavListAbove } from '../components/navigationLogic.js';
+import { updateNavListUnder, updateNavListAbove, cleanAllNav } from '../components/navigationLogic.js';
 import { updateTagsList } from '../components/tagLogic.js';
 
 export async function renderSurveyDetail(surveyId) {
     clearPhotoMarkers();
-    addBackButtonControl()
+    cleanAllNav();
+    addBackButtonControl();
 
     fetchSurveyPhotosAboveWater(surveyId)
         .then(photos =>{

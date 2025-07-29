@@ -10,12 +10,12 @@ from sqlalchemy.exc import OperationalError
 from db import SessionLocal, engine, get_db
 from models import Base
 from fastapi.middleware.cors import CORSMiddleware
-from routes import field_surveys, photos
+from routes import field_surveys, photos, logs
 from schemas import FieldSurveyCreate
 from crud import get_num_surveys
 
 from fastapi.exceptions import RequestValidationError
-from logger import logger
+from logger import logger, setup_logger
 
 app = FastAPI()
 
@@ -35,6 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+setup_logger()
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
@@ -43,6 +44,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 app.include_router(field_surveys.router)
 app.include_router(photos.router)
+app.include_router(logs.router)
 
 Base.metadata.create_all(bind=engine)
 

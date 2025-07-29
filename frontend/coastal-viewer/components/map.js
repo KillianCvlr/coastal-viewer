@@ -30,7 +30,7 @@ export function addBackButtonControl() {
     onAdd: function () {
       const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
       const button = L.DomUtil.create('a', '', container)
-      button.innerHTML = '← SUrvey List'
+      button.innerHTML = '←'
       button.title = 'Back to Survey List'
       button.href = '#/'
       button.style.padding = '4px 8px'

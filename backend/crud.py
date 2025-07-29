@@ -39,6 +39,14 @@ def create_survey(db: Session, survey_data: FieldSurveyCreate):
     db.refresh(new_survey)
     return new_survey
 
+def delete_survey_by_id(db: Session, survey_id: int):
+    survey = db.query(FieldSurvey).filter(FieldSurvey.id == survey_id).first()
+    if not survey:
+        return None
+    db.delete(survey)
+    db.commit()
+    return survey
+
 def get_all_surveys_data(db: Session):
     return db.query(FieldSurvey).all()
 
@@ -62,6 +70,22 @@ def get_survey_photos_underwater(db: Session, survey_id: int):
         .filter(Photo.survey_id == survey_id)
         .filter(Photo.is_underwater == True)
         .all()
+    )
+
+def get_count_survey_abovewater_photos(db: Session, survey_id: int):
+    return (
+        db.query(Photo)
+        .filter(Photo.survey_id == survey_id)
+        .filter(Photo.is_underwater == False)
+        .count()
+    )
+
+def get_count_survey_underwater_photos(db: Session, survey_id: int):
+    return (
+        db.query(Photo)
+        .filter(Photo.survey_id == survey_id)
+        .filter(Photo.is_underwater == True)
+        .count()
     )
 
 def update_survey_with_first_photo(db: Session, survey: FieldSurvey, photo: Photo):
