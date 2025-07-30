@@ -76,7 +76,7 @@ def post_new_tag(tag: TagCreate, db: Session = Depends(get_db)):
         
     return create_tag(db, tag)
 
-@router.post("/photos/{photo_id}/tags/", response_model=PhotoOut)
+@router.put("/photos/{photo_id}/tags/", response_model=PhotoOut)
 def assign_tags_to_photo(photo_id: int, tagList: list[int], db: Session = Depends(get_db)):
     photoData = get_photo_data_by_id(db, photo_id)
     if not photoData:
@@ -90,6 +90,24 @@ def assign_tags_to_photo(photo_id: int, tagList: list[int], db: Session = Depend
         tags.append(db_tag)
 
     photoData.tags = tags
+    db.commit()
+    db.refresh(photoData)
+    return photoData
+
+@router.patch("/photos/{photo_id}/tags/", response_model=PhotoOut)
+def add_tags_to_photo(photo_id: int, tagList: list[int], db: Session = Depends(get_db)):
+    photoData = get_photo_data_by_id(db, photo_id)
+    if not photoData:
+        raise HTTPException(status_code=404, detail="Photo not found")
+
+    tags = []
+    for tagId in tagList:
+        db_tag = get_tag_by_id(db, tagId)
+        if not db_tag:
+            raise HTTPException(status_code=404, detail=f"Tag id: {tagId} not found")
+        tags.append(db_tag)
+
+    photoData.tags.extend(tags)
     db.commit()
     db.refresh(photoData)
     return photoData

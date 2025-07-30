@@ -1,7 +1,7 @@
 import { deleteTag, postNewTag } from '../../shared/api.js';
 import { refreshMap } from './map.js'
 import {addToDisplayIndex, nextPhotoDisplayIndex, previousPhotoDisplayIndex, subToDisplayIndex} from './navigationLogic.js'
-import { getTagsByIds, updateTagsList } from './tagLogic.js';
+import { updateTagsList } from './tagLogic.js';
 
 ///////////////////////////////RESIZERS//////////////////////////////////////// 
 
@@ -119,8 +119,8 @@ createBtn.addEventListener('click', async () => {
     modal.style.display = 'none';
     tagError.textContent = '';
     document.getElementById('newTagName').value = '';
-    alert("New Tag Created!");
     updateTagsList()
+    alert("New Tag Created!");
   } catch (err) {
     // ⛔ Error: show in UI
     tagError.textContent = err.message || 'Error creating tag.';

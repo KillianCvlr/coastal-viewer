@@ -85,6 +85,10 @@ html, body {
   background-color: #c0392b;
 }
 
+#log-output{
+  border: 2px solid #666;
+}
+
 
 .modal {
   display: none;

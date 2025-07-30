@@ -40,16 +40,18 @@ def serve_survey_photos(survey_id: int, db: Session = Depends(get_db)):
 
 @router.delete("/surveys/{survey_id:int}/", status_code=204)
 def delete_survey_by_id_route(survey_id: int, db: Session = Depends(get_db)):
-    logger.info(f"Deleting Survey by Id : {survey_id}")
+    logger.info(f"Deleting Survey by Id : {survey_id}...")
     db_survey = get_survey_data(db, survey_id)
     if not db_survey: 
         logger.info(f"No survey with ID {survey_id} found")
         raise HTTPException(status_code=500, detail=f"No Survey with Id {survey_id} found")
     nb_underwater = get_count_survey_underwater_photos(db, survey_id)
     nb_abovewater = get_count_survey_abovewater_photos(db, survey_id)
-    delete_survey_by_id(db, survey_id)
     logger.info(f"Survey {survey_id} deleted")
-    logger.info(f"Deleting {nb_abovewater} abovewater photos and {nb_underwater} underwater photos relations")
+    logger.info(f"Deleting {nb_abovewater} abovewater photos and {nb_underwater} underwater photos relations...")
+    delete_survey_by_id(db, survey_id)
+    logger.info(f" ✅ Survey \"{db_survey.survey_name}\" fully deleted ! ")
+
     return
 
 @router.post("/surveys/")

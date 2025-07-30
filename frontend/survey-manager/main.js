@@ -28,6 +28,13 @@ function renderSurveys(surveyData) {
       ${survey.comment ? `<em>${survey.comment}</em>` : ""}
     `;
 
+    const info2 = document.createElement("div");
+    info2.className = "survey-info";
+    info2.innerHTML = `
+      <span> 🌅 Abovewater : ${survey.abovewater_folder ? `${survey.abovewater_folder}` : "No Folder found"} </span>
+      <span> 🌊 Underwater : ${survey.underwater_folder ? `${survey.underwater_folder}` : "No Folder found"} </span>
+    `;
+
     const actions = document.createElement("div");
     actions.className = "survey-actions";
 
@@ -41,6 +48,7 @@ function renderSurveys(surveyData) {
 
     actions.appendChild(deleteBtn);
     item.appendChild(info);
+    item.appendChild(info2);
     item.appendChild(actions);
     container.appendChild(item);
   });

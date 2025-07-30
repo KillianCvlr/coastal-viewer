@@ -7,6 +7,7 @@ export async function renderSurveyDetail(surveyId) {
     clearPhotoMarkers();
     cleanAllNav();
     addBackButtonControl();
+    updateTagsList()
 
     fetchSurveyPhotosAboveWater(surveyId)
         .then(photos =>{

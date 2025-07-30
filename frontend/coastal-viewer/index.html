@@ -17,9 +17,14 @@
           </div>
           <button id="toggle-info-btn">☰</button>
           
-          <div id = "map-buttons-wrapper">
-            <a href="/survey-manager/" class="btn">Add a Field Survey</a>
-            <button id="openTagModalBtn" class="btn"> Manage Tags</button>
+        </div>
+        
+        <div id="resizer-raw"></div>
+        
+        <div id="nav">
+          <div id = "menu-buttons-wrapper">
+            <a href="/survey-manager/" class="btn">Survey Manager</a>
+            <div id="openTagModalBtn" class="btn"> Manage Tags</div>
             <label class="btn">
               <input type="checkbox" id="fullres-toggle"> Full resolution
             </label>
@@ -27,21 +32,28 @@
               <input type="checkbox" id="magnifying-toggle"> Zoom Mode
             </label>
           </div>
-        </div>
 
-        <div id="resizer-raw"></div>
+          <div id="tag-selection-wrapper">
+            <div id="tag-unselected-list"></div>
+            <h3> Tag Selection :</h3>
+            <div id="tag-selected-list"> Tag Selection</div>
+          </div>
 
-        <div id="nav">
-          <button id="nav-prev" class="btn">Previous</button>
-          <button id="nav-next" class="btn">Next</button>
-          <div id="fast-travel-bar">
-            <button id="fast-prev" class="btn">⏮️</button>
+          <div id="nav-wrapper">
+            <div id= "simple-travel-bar">
+              <button id="nav-prev" class="btn">Prev</button>
+              <button id="nav-next" class="btn">Next</button>
+            </div>
             <input id="fast-travel-amount" type="number" min="1" value="5" />
-            <button id="fast-next" class="btn">⏭️</button>
-          </div>  
+            <div id="fast-travel-bar">
+              <button id="fast-prev" class="btn">⏮️</button>
+              <button id="fast-next" class="btn">⏭️</button>
+            </div>  
+          </div>
+
         </div>
       </div>
-      
+
       <div id="resizer-col"></div>
       
       <div id="image-panel">
