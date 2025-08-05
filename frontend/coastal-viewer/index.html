@@ -13,50 +13,71 @@
         <div id="map">
           <!-- Info bar slides underneath -->
           <div id="photo-info-bar" class="hidden">
-            <div id="photo-info-content"></div>
+            <div id="photo-above-info-content"></div>
+            <div id="photo-above-tag-content"></div>
+            <div id="photo-under-info-content"></div>
+            <div id="photo-under-tag-content"></div>
           </div>
           <button id="toggle-info-btn">☰</button>
           
-        </div>
-        
-        <div id="resizer-raw"></div>
-        
-        <div id="nav">
-          <div id = "menu-buttons-wrapper">
-            <a href="/survey-manager/" class="btn">Survey Manager</a>
-            <div id="openTagModalBtn" class="btn"> Manage Tags</div>
-            <label class="btn">
-              <input type="checkbox" id="fullres-toggle"> Full resolution
-            </label>
-            <label class="btn">
-              <input type="checkbox" id="magnifying-toggle"> Zoom Mode
-            </label>
-          </div>
-
-          <div id="tag-selection-wrapper">
-            <div id="tag-unselected-list"></div>
-            <h3> Tag Selection :</h3>
-            <div id="tag-selected-list"> Tag Selection</div>
-          </div>
-
-          <div id="nav-wrapper">
-            <div id= "simple-travel-bar">
-              <button id="nav-prev" class="btn">Prev</button>
-              <button id="nav-next" class="btn">Next</button>
+          <div id="nav">
+            <div id = "menu-buttons-wrapper">
+              <a href="/survey-manager/" class="btn">Survey Manager</a>
+              <div id="openTagModalBtn" class="btn"> Manage Tags</div>
+              <label class="btn">
+                <input type="checkbox" id="fullres-toggle"> Full resolution
+              </label>
+              <label class="btn">
+                <input type="checkbox" id="magnifying-toggle"> Zoom Mode
+              </label>
             </div>
-            <input id="fast-travel-amount" type="number" min="1" value="5" />
-            <div id="fast-travel-bar">
-              <button id="fast-prev" class="btn">⏮️</button>
-              <button id="fast-next" class="btn">⏭️</button>
-            </div>  
+  
+            <div id="tag-selection-wrapper">
+              <div id="tag-selection-action">
+                <button id="tag-add-to-photo" class="btn"> Add </button>
+                <button id="tag-set-to-photo" class="btn"> Set </button>
+                To Photo
+                <div style="width:1px; height:100%; background:#ccc;"></div>
+                <button id="tag-exclude-btn" class="btn">Exclude</button>
+                <button id="tag-filter-by-btn" class="btn">Filter by</button>
+                Tag
+              </div>
+              <div id="tag-selection-lists">
+                <div id="tag-unselected-list"> </div>
+                <div> <hr></div>
+                <div id="tag-selected-list"> </div>
+              </div>
+            </div>
+  
+            <div id="nav-wrapper">
+              <div id = travel-system>
+                <div id= "simple-travel-bar">
+                  <button id="nav-prev" class="btn">Prev</button>
+                  <button id="nav-next" class="btn">Next</button>
+                </div>
+                <input id="fast-travel-amount" type="number" min="1" value="5" />
+                <div id="fast-travel-bar">
+                  <button id="fast-prev" class="btn">⏮️</button>
+                  <button id="fast-next" class="btn">⏭️</button>
+                </div> 
+              </div>
+              
+              <hr style="width:100%;">
+              
+              <div id="filtering-system">
+                <div id="nav-filter-tag-list"></div>
+                <div id="nav-exclude-tag-list"></div>
+              </div>
+            </div>
+  
           </div>
-
-        </div>
+        </div>        
       </div>
 
       <div id="resizer-col"></div>
       
       <div id="image-panel">
+        <div id="survey-list-image-panel"></div>
         <img id="main-image" />
         <img id="second-image" />
       </div>
@@ -64,6 +85,7 @@
       <div id="loupe">
         <img id="loupe-image" />
       </div>
+
       <div id="tagModal" class="modal hidden">
         <div class="modal-content">
           <span id="closeTagModalBtn" class="close">&times;</span>
@@ -71,7 +93,7 @@
           <div id="modal-tag-list"></div>
 
           <h3>Delete Tag</h3>
-          <input type="text" id="deleteTagName" placeholder="Delete Tag" />
+          <input type="text" id="deleteTagName" placeholder="Type the tag's name to delete" />
           <button id="deleteTagBtn" class="btn" style="background:#ca0e0e;">Delete</button>
 
           <h3>Create New Tag</h3>
@@ -97,6 +119,17 @@
 
           <button id="createTagBtn" class="btn">Create</button>
           <p id="tagError" class="error"></p>
+        </div>
+      </div>
+
+      <div id="offset-modal" class="modal hidden">
+        <div class="modal-content">
+          <span id="offset-modal-close" class="close">&times;</span>
+          <h3> New Offset</h3>
+          <input id="offset-modal-amount" type="number" min="0" value="5" />
+
+          <button id="offset-modal-validate" class="btn">Validate Offset</button>
+          <p id="offset-modal-error" class="error"></p>
         </div>
       </div>
     </div>

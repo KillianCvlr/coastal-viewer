@@ -8,12 +8,13 @@ CREATE TABLE  IF NOT EXISTS field_surveys (
   comment TEXT,
   abovewater_folder TEXT,
   underwater_folder TEXT,
-  linking_file TEXT
+  linking_file TEXT,
+  underwater_offset INTEGER DEFAULT (0)
 );
 
 CREATE TABLE IF NOT EXISTS photos (
   id SERIAL PRIMARY KEY,
-  local_index INTEGER DEFAULT (-1),
+  in_surey_index INTEGER DEFAULT (-1),
   filename TEXT,
   filepath TEXT UNIQUE,
   datetime TIMESTAMP,

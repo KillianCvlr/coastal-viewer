@@ -8,6 +8,15 @@ export async function fetchPhotos() {
   return res.json()
 }
 
+export async function fetchSurvey(surveyId) {
+  const res = await fetch(`/surveys/${surveyId}/`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!res.ok) throw new Error("Failed to fetch survey")
+  return res.json()
+}
+
 export async function fetchSurveyPhotos(surveyId) {
   const res = await fetch(`/surveys/${surveyId}/photos/`, {
     method: 'GET',
@@ -36,21 +45,13 @@ export async function fetchSurveyPhotosAboveWater(surveyId) {
 }
 
 
-export async function fetchSurveys() {
-  const res = await fetch(`/surveys/`, {
-    method: 'GET',
-    headers: { 'Content-Type': 'application/json' },
-  })
-  if (!res.ok) throw new Error("Failed to fetch surveys")
-  return res.json()
-}
 
 export async function fetchFullResPhoto(photoPath) {
   const res = await fetch(`/photos/${encodeURIComponent(photoPath)}/fullRes/`, {
     method: 'GET',
   })
   if (!res.ok) throw new Error("Failed to fetch full res photo")
-  return res.blob()
+    return res.blob()
 }
 
 export async function fetchDownscaledPhoto(photoPath) {
@@ -58,8 +59,10 @@ export async function fetchDownscaledPhoto(photoPath) {
     method: 'GET',
   })
   if (!res.ok) throw new Error("Failed to downscaled res photo")
-  return res.blob()
+    return res.blob()
 }
+
+//////////////////////// Tag Logic ////////////////////////////////////////////
 
 export async function fetchTags() {
   const res = await fetch('/tags/', {
@@ -91,7 +94,7 @@ export async function postNewTag(tagName, color){
     }
     throw new Error(msg);
   }
-
+  
   return data; // new tag object
 }
 
@@ -99,12 +102,52 @@ export async function deleteTag(tagName) {
   const res = await fetch(`/tags/${tagName}/`, {
     method: 'DELETE'
   });
-
+  
   if (!res.ok) {
     const error = await res.json();
     throw new Error(error.detail || "Error deleting tag.");
   }
-} 
+}  
+
+export async function addTagsToPhoto(tagIds, photoId){
+  const res = await fetch(`/photos/${photoId}/tags/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(tagIds )
+  });
+  
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || "Error deleting tag.");
+  }
+  return res.json()
+}
+
+export async function setTagsToPhoto(tagIds, photoId){
+  const res = await fetch(`/photos/${photoId}/tags/`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify( tagIds )
+  });
+  
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || "Error deleting tag.");
+  }
+  return res.json()
+}
+
+
+/////////////////////////////////// Survey logic //////////////////////////////
+
+export async function fetchSurveys() {
+  const res = await fetch(`/surveys/`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!res.ok) throw new Error("Failed to fetch surveys")
+  return res.json()
+}
 
 
 export async function postSurvey(surveyData){
@@ -132,4 +175,18 @@ export async function deleteSurvey(surveyID){
     throw new Error(error.detail || "Error deleting Survey");
   }
   return
+}
+
+export async function postOffset(surveyID, new_offset){
+  const res = await fetch(`/surveys/${surveyID}/offset/?new_offset=${new_offset}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: new_offset,
+  });    
+
+  if (!res.ok){
+    const error = await res.json();
+    throw new Error(error.detail || "Error posting offset");
+  }
+  return res.json()
 }

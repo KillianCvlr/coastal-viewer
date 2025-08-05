@@ -1,5 +1,6 @@
 import { isMagnyfingEnabled, isFullResEnabled } from './ui.js'
 import { fetchDownscaledPhoto, fetchFullResPhoto } from '../../shared/api.js'
+import { goToSurveyView } from './map.js'
 
 const loupe = document.getElementById('loupe')
 const imagePanel = document.getElementById('image-panel')
@@ -119,4 +120,62 @@ export async function loadPhotoInPanelSecond(photoPath) {
         console.error("Failed to load image:", err)
         document.getElementById('second-image').src = ""
     })
+}
+
+///////////////// Rendering survey List when not in photo mode/////////////////
+
+const surveyListImagePanelDiv = document.getElementById("survey-list-image-panel")
+export function renderSurveysListImagePanel(surveyData) {
+
+  surveyData.forEach(survey => {
+    const item = document.createElement("div");
+    item.className = "survey-item";
+
+    const info = document.createElement("div");
+    info.className = "survey-info";
+    info.innerHTML = `
+      <strong>📄 ${survey.survey_name}</strong>
+      <span>🕒 ${survey.datetime}</span>
+      <span>📍 ${survey.coords ? `${survey.coords[0].toFixed(4)}, ${survey.coords[1].toFixed(4)}` : "No Survey coords"}
+      </span>
+      ${survey.comment ? `<em>${survey.comment}</em>` : ""}
+    `;
+
+    const info2 = document.createElement("div");
+    info2.className = "survey-info";
+    info2.innerHTML = `
+      <span> 🌅 Abovewater : ${survey.abovewater_folder ? `${survey.abovewater_folder}` : "No Folder found"} </span>
+      <span> 🌊 Underwater : ${survey.underwater_folder ? `${survey.underwater_folder}` : "No Folder found"} </span>
+    `;
+
+    const actions = document.createElement("div");
+    actions.className = "survey-actions";
+
+    if (survey.coords){
+      const goToBtn = document.createElement("button");
+      goToBtn.className = "btn";
+      goToBtn.innerText = "Go To";
+      goToBtn.onclick = ('click', () => {
+        goToSurveyView(survey)
+        setTimeout(() => {
+          window.location.hash = `#/survey/${survey.id}`
+          }, 2000) // match duration above
+        })
+      actions.appendChild(goToBtn);
+    }
+
+    item.appendChild(info);
+    item.appendChild(info2);
+    item.appendChild(actions);
+    surveyListImagePanelDiv.appendChild(item);
+  });
+}
+
+export function clearSurveyListImagePanel(){
+  surveyListImagePanelDiv.innerHTML = ""
+}
+
+export function clearPhotosImagePanel(){
+  aboveWaterImage.src = ""
+  underWaterImage.src = ""
 }

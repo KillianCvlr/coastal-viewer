@@ -105,7 +105,8 @@ def add_tags_to_photo(photo_id: int, tagList: list[int], db: Session = Depends(g
         db_tag = get_tag_by_id(db, tagId)
         if not db_tag:
             raise HTTPException(status_code=404, detail=f"Tag id: {tagId} not found")
-        tags.append(db_tag)
+        if tagId not in photoData.tag_ids :
+            tags.append(db_tag)
 
     photoData.tags.extend(tags)
     db.commit()

@@ -1,11 +1,17 @@
-import { fetchTags } from "../../shared/api"
+import { fetchTags, setTagsToPhoto, addTagsToPhoto} from "../../shared/api"
+import { updatePhotoInfoBar } from "./infoBar"
+import { getCurrentAbovePhoto, getCurrentUnderPhoto, updateListWithNewPhoto } from "./navigationLogic"
 
 let tagsList = []
 let tagsSelected = []
+let tagsFiltered = []
+let tagsExcluded = []
+
 const modalTagList = document.getElementById('modal-tag-list')
 const unselectedTagListDiv = document.getElementById('tag-unselected-list')
 const selectedTagListDiv = document.getElementById('tag-selected-list')
-
+const filteredByTagListDiv = document.getElementById('nav-filter-tag-list')
+const excludedTagListDiv = document.getElementById('nav-exclude-tag-list')
 
 function selectTag(tagId) {
   const tag = tagsList.find(t => t.id === tagId)
@@ -46,7 +52,7 @@ export function updateUnselectedTags() {
   unselected.forEach(tag => {
     const badge = document.createElement('span')
     badge.textContent = tag.name
-    badge.style.backgroundColor = tag.color || '#999'
+    badge.style.backgroundColor = '#999'
     badge.classList.add('tag-badge')
     badge.addEventListener('click', () => {
       selectTag(tag.id)
@@ -54,6 +60,29 @@ export function updateUnselectedTags() {
     unselectedTagListDiv.appendChild(badge)
   })
 }
+
+function getSelectedTagsCopy(){
+    return [...tagsSelected]
+}
+
+export function updateTagsFiltered(){
+  tagsFiltered = getSelectedTagsCopy()
+  showTagBadges(tagsFiltered,filteredByTagListDiv)
+}
+
+export function updateTagsExcluded(){
+  tagsExcluded = getSelectedTagsCopy()
+  showTagBadges(tagsExcluded, excludedTagListDiv)
+}
+
+export function getTagsFiltered(){
+  return tagsFiltered
+}
+
+export function getTagsExcluded(){
+  return tagsExcluded
+}
+
 
 
 /**
@@ -78,7 +107,7 @@ export function getSelectedTagsID() {
     return tagsSelected.map(tag => tag.id)
 }
 
-export async function getTagsList(){
+export function getTagsList(){
     return tagsList
 }
 
@@ -105,7 +134,72 @@ export async function updateTagsList(){
  * @returns {Array<Object>} - Array of full tag objects
  */
 export function getTagsByIds(tagIds) {
-  return tagIds
+    if (!tagIds) {return []}
+    return tagIds
     .map(id => tagsList.find(tag => tag.id === id))
     .filter(tag => tag !== undefined);  // remove missing
 }
+
+const setTagPhotoBtn = document.getElementById('tag-set-to-photo')
+const addTagPhotoBtn = document.getElementById('tag-add-to-photo')
+const filterByTagBtn = document.getElementById('tag-filter-by-btn')
+const excludeTagBtn = document.getElementById('tag-exclude-btn')
+
+setTagPhotoBtn.addEventListener('click', async () => {
+    const currentPhotoAbove = getCurrentAbovePhoto()
+    const currentPhotoUnder = getCurrentUnderPhoto()
+    const selectedTagIds = getSelectedTagsID()
+
+    try {
+        let newPhotoAbove
+        let newPhotoUnder
+        if (currentPhotoAbove) {
+            newPhotoAbove = await setTagsToPhoto(selectedTagIds, currentPhotoAbove.id)
+            updateListWithNewPhoto(newPhotoAbove)
+        }
+
+        if (currentPhotoUnder) {
+            newPhotoUnder = await setTagsToPhoto(selectedTagIds, currentPhotoUnder.id)
+            updateListWithNewPhoto(newPhotoUnder)
+        }
+    
+        updatePhotoInfoBar(newPhotoAbove,newPhotoUnder)
+
+    } catch (err) {
+        console.error("Updating tags failed:", err);
+        alert(err.message);
+    }
+})
+
+addTagPhotoBtn.addEventListener('click', async () => {
+    let currentPhotoAbove = getCurrentAbovePhoto()
+    let currentPhotoUnder = getCurrentUnderPhoto()
+    const selectedTagIds = getSelectedTagsID()
+    try {
+        let newPhotoAbove
+        let newPhotoUnder
+        if (currentPhotoAbove) {
+            newPhotoAbove = await addTagsToPhoto(selectedTagIds, currentPhotoAbove.id)
+            updateListWithNewPhoto(newPhotoAbove)
+        }
+
+        if (currentPhotoUnder) {
+            newPhotoUnder = await addTagsToPhoto(selectedTagIds, currentPhotoUnder.id)
+            updateListWithNewPhoto(newPhotoUnder)
+        }
+    
+        updatePhotoInfoBar(newPhotoAbove,newPhotoUnder)
+
+    } catch (err) {
+        console.error("Updating tags failed:", err);
+        alert(err.message);
+    }
+})
+
+filterByTagBtn.addEventListener('click', async () => {
+  updateTagsFiltered()
+})
+
+excludeTagBtn.addEventListener('click', async () => {
+  updateTagsExcluded()
+})

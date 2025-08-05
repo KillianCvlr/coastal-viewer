@@ -3,15 +3,14 @@ import { deleteSurvey, fetchSurveys, postSurvey } from "../shared/api";
 updateSurveyListing()
 
 function updateSurveyListing(){
-  fetchSurveys().then(renderSurveys).catch(err => {
+  fetchSurveys().then( surveys => {renderSurveysList(surveys, document.getElementById("survey-list"))}).catch(err => {
     console.error("Error loading surveys markers: ", err)
     });
 }
 
 let targetSurvey = null;
 
-function renderSurveys(surveyData) {
-  const container = document.getElementById("survey-list");
+function renderSurveysList(surveyData, container) {
   container.innerHTML = ""; // clear existing
 
   surveyData.forEach(survey => {

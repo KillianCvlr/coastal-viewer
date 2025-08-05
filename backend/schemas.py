@@ -25,7 +25,7 @@ class TagOut(TagBase):
 
 class PhotoOut(BaseModel):
     id : int
-    local_index : int
+    in_surey_index : int
     filename: str
     filepath: str
     coords: Optional[list[float]] = None
@@ -42,7 +42,7 @@ class PhotoOut(BaseModel):
 
 class PhotoCreate(BaseModel) :
     filename: str
-    local_index: int
+    in_surey_index: int
     filepath: str
     coords: Optional[list[float]] = None
     datetime: Optional[datetime]
@@ -77,6 +77,7 @@ class FieldSurveyData(BaseModel):
     abovewater_folder: Optional[str]
     underwater_folder: Optional[str]
     linking_file: Optional[str]
+    underwater_offset : Optional[int]
 
     class Config:
         orm_mode = True
@@ -87,6 +88,7 @@ class FieldSurveyUpdate(BaseModel):
     abovewater_folder: Optional[str] = None
     underwater_folder: Optional[str] = None
     linking_file: Optional[str] = None
+    underwater_offset: Optional[int] = None
 
     class Config:
         orm_mode = True

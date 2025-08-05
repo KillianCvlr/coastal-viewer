@@ -6,7 +6,7 @@ from db import get_db
 from schemas import FieldSurveyCreate, PhotoOut, FieldSurveyData
 from crud import create_survey, add_photos, update_survey_with_first_photo, get_all_surveys_data, get_survey_data, get_survey_photos
 from crud import get_survey_photos_abovewater, get_survey_photos_underwater, get_first_photo_with_location, get_count_survey_abovewater_photos, get_count_survey_underwater_photos
-from crud import delete_survey_by_id
+from crud import delete_survey_by_id, get_survey_by_name
 from pathlib import Path
 from logger import logger
 from utils import parse_photos_from_folder, get_conflicting_folder, is_existing_folder, internal_folder_conflict
@@ -18,10 +18,21 @@ def serve_all_surveys_data(db: Session = Depends(get_db)):
     logger.info("Getting all surveys data")
     return get_all_surveys_data(db)
 
-@router.get("/surveys/{survey_id:int}", response_model=FieldSurveyData)
+@router.get("/surveys/{survey_id:int}/", response_model=FieldSurveyData)
 def serve_survey_data(survey_id: int, db: Session = Depends(get_db)):
     logger.info(f"Getting survey {survey_id} data")
     return get_survey_data(db, survey_id)
+
+@router.post("/surveys/{survey_id:int}/offset/", response_model=FieldSurveyData)
+def change_survey_offset(survey_id:int, new_offset:int, db: Session = Depends(get_db)):
+    db_survey = get_survey_data(db, survey_id)
+    if not db_survey: 
+        logger.info(f"No survey with ID {survey_id} found")
+        raise HTTPException(status_code=500, detail=f"No Survey with Id {survey_id} found")
+    db_survey.underwater_offset = new_offset
+    db.commit()
+    db.refresh(db_survey)
+    return db_survey
 
 @router.get("/surveys/{survey_id:int}/photos/", response_model=list[PhotoOut])
 def serve_survey_photos(survey_id: int, db: Session = Depends(get_db)):
@@ -58,6 +69,12 @@ def delete_survey_by_id_route(survey_id: int, db: Session = Depends(get_db)):
 def post_and_process_survey(new_data: FieldSurveyCreate, db: Session = Depends(get_db)):
     
     # First check survey's folder validty
+    #Check if name exists
+    surveyByName = get_survey_by_name(db, new_data.survey_name)
+    if (surveyByName):
+        logger.error(f"Survey with '{new_data.survey_name}' name does already exists, try a new one")
+        raise HTTPException(status_code=500, detail=f"Survey with '{new_data.survey_name}' name does already exists, try a new one")
+
     # Checks existence, No input = no folder, not no relative path
     for folder in [new_data.underwater_folder, new_data.abovewater_folder]:
         if not folder:

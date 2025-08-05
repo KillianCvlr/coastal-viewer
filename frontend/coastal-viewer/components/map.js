@@ -6,6 +6,8 @@ let navMarkerGroup
 let backControl = null 
 let navMarker = null;
 
+const navWrapper = document.getElementById("nav")
+
 export function initMap() {
   map = L.map('map').setView([43.6, 3.9], 4)
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
@@ -15,6 +17,7 @@ export function initMap() {
 
   markerGroup = L.layerGroup().addTo(map)
   navMarkerGroup = L.layerGroup().addTo(map)
+  L.DomEvent.disableClickPropagation(navWrapper);
 }
 
 export function setDefaultView(){
@@ -24,9 +27,16 @@ export function setDefaultView(){
   })
 }
 
+export function goToSurveyView(survey){
+  map.flyTo([survey.coords[0], survey.coords[1]], 18, {
+          animate: true,
+          duration: 2
+        })
+}
+
 export function addBackButtonControl() {
   const BackControl = L.Control.extend({
-    options: { position: 'bottomleft' },
+    options: { position: 'topleft' },
     onAdd: function () {
       const container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
       const button = L.DomUtil.create('a', '', container)
@@ -56,7 +66,7 @@ export function removeBackButtonControl() {
 
 export function addPhotoMarkers(photos) {
   photos.forEach(photo => {
-    if ((photo.coords) && (photo.local_index % 5 == 0)) {
+    if ((photo.coords) && (photo.in_surey_index % 5 == 0)) {
       const marker = L.circleMarker([photo.coords[0], photo.coords[1]], {
         radius: 2,
         color: "#9f36f1",
@@ -64,7 +74,7 @@ export function addPhotoMarkers(photos) {
         fillOpacity: 1
       })
       marker.on('click', () => {
-        changePhotoDisplayToIndex(photo.local_index)
+        changePhotoDisplayToIndex(photo.in_surey_index)
       })
 
       marker.addTo(markerGroup)

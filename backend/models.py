@@ -20,7 +20,7 @@ photo_tags = Table(
 class Photo(Base):
     __tablename__ = "photos"
 
-    local_index = Column(Integer, default = -1)
+    in_surey_index = Column(Integer, default = -1)
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String, index=True)
     filepath = Column(String, unique=True, index=True)
@@ -57,6 +57,7 @@ class FieldSurvey(Base):
     abovewater_folder = Column(String(100))
     underwater_folder = Column(String(100))
     linking_file = Column(String(100))
+    underwater_offset = Column(Integer, primary_hey=False, index=False)
     photos = relationship("Photo", back_populates="survey", cascade="all, delete-orphan")
     
     @hybrid_property

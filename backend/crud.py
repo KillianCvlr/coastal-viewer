@@ -56,6 +56,9 @@ def get_survey_data(db: Session, survey_id: int):
 def get_survey_photos(db: Session, survey_id: int):
     return db.query(Photo).options(joinedload(Photo.tags)).filter(Photo.survey_id == survey_id)
 
+def get_survey_by_name(db: Session, surveyName: str):
+    return db.query(FieldSurvey).filter(FieldSurvey.survey_name == surveyName).first()
+
 def get_survey_photos_abovewater(db: Session, survey_id: int):
     return (
         db.query(Photo)
