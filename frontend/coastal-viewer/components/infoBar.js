@@ -1,4 +1,4 @@
-import { getAboveNavListLength, getUnderNavListLength, getUnderwaterOffset } from "./navigationLogic";
+import { getAboveAllListLength, getAboveNavListLength, getIndexInNav, getUnderAllListLength, getUnderNavListLength, getUnderwaterOffset } from "./navigationLogic";
 import { getTagsByIds, showTagBadges } from "./tagLogic";
 
 const aboveInfoContent = document.getElementById('photo-above-info-content');
@@ -7,12 +7,12 @@ const underInfoContent = document.getElementById('photo-under-info-content');
 const undertagContent = document.getElementById('photo-under-tag-content');
 
 let infoVisible = false;
-const toggleBtn = document.getElementById('toggle-info-btn');
+const toggleInfoBarBtn = document.getElementById('toggle-info-btn');
 const infoBar = document.getElementById('photo-info-bar');
 
-toggleBtn.addEventListener('click', () => {
+toggleInfoBarBtn.addEventListener('click', () => {
   const isNowHidden = infoBar.classList.toggle('hidden');
-  toggleBtn.innerText = isNowHidden ? '◀' : '▶';
+  toggleInfoBarBtn.innerText = isNowHidden ? '◀' : '▶';
 });
 
 document.getElementById('photo-info-bar').addEventListener('wheel', function(e) {
@@ -31,10 +31,11 @@ export function updatePhotoInfoBar(photoAbove, photoUnder) {
     const underwaterOffset = getUnderwaterOffset()
 
     // --- Handle photoAbove ---
+    linesAbove.push(`Nav : ${getIndexInNav() +1}/ ${getAboveNavListLength()}`);
     linesAbove.push(`<h3>🌅 Above Water</h3>`);
     
     if (photoAbove) {    
-        linesAbove.push(`Local :${photoAbove.in_surey_index}/${getAboveNavListLength()}   |     Id : ${photoAbove.id}`);
+        linesAbove.push(`Survey :${photoAbove.in_survey_index +1}/${getAboveAllListLength()}   |     Id : ${photoAbove.id}`);
         linesAbove.push(`<p><strong>📄 Photo name:</strong><br>${photoAbove.filename}</p>`);
         
         if (photoAbove.datetime) {
@@ -44,7 +45,7 @@ export function updatePhotoInfoBar(photoAbove, photoUnder) {
         if (photoAbove.coords) {
             linesAbove.push(`<p><strong>📍 Coords:</strong><br>${photoAbove.coords[0].toFixed(5)}, ${photoAbove.coords[1].toFixed(5)}</p>`);
         }
-        linesAbove.push(`<p><strong>🏷️ Tags:</strong><br>${photoAbove.tag_ids}</p>`);
+        linesAbove.push(`<p><strong>🏷️ Tags:</strong><br></p>`);
         
         tagsAbove = getTagsByIds(photoAbove.tag_ids)
         showTagBadges(tagsAbove, abovetagContent)
@@ -55,7 +56,7 @@ export function updatePhotoInfoBar(photoAbove, photoUnder) {
     linesUnder.push(`<hr><h3>🌊 Underwater</h3>`);
     linesUnder.push(`<div id="change-offset-info-bar" class="offset-badge"> Offset : ${underwaterOffset} </div> <br>`);
     if (photoUnder) {
-        linesUnder.push(`Local :${photoUnder.in_surey_index}/${getUnderNavListLength()}   |     Id : ${photoUnder.id}`);
+        linesUnder.push(`Survey :${photoUnder.in_survey_index +1}/${getUnderAllListLength()}   |     Id : ${photoUnder.id}`);
         linesUnder.push(`<p><strong>📄 Photo name:</strong><br>${photoUnder.filename}</p>`);
 
         if (photoUnder.datetime) {
@@ -66,7 +67,7 @@ export function updatePhotoInfoBar(photoAbove, photoUnder) {
             linesUnder.push(`<p><strong>📍 Coords:</strong><br>${photoUnder.coords[0].toFixed(5)}, ${photoUnder.coords[1].toFixed(5)}</p>`);
         }
         
-        linesUnder.push(`<p><strong>🏷️ Tags:</strong><br>${photoUnder.tag_ids}</p>`);
+        linesUnder.push(`<p><strong>🏷️ Tags:</strong><br></p>`);
         
         tagsUnder = getTagsByIds(photoUnder.tag_ids)
         showTagBadges(tagsUnder, undertagContent)

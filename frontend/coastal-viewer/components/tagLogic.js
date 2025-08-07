@@ -1,6 +1,6 @@
 import { fetchTags, setTagsToPhoto, addTagsToPhoto} from "../../shared/api"
 import { updatePhotoInfoBar } from "./infoBar"
-import { getCurrentAbovePhoto, getCurrentUnderPhoto, updateListWithNewPhoto } from "./navigationLogic"
+import { clearPhotoSelect, getCurrentAbovePhoto, getCurrentUnderPhoto, updateListWithNewPhoto } from "./navigationLogic"
 
 let tagsList = []
 let tagsSelected = []
@@ -27,6 +27,7 @@ function unselectTag(tagId) {
   updateSelectedTags()
   updateUnselectedTags()
 }
+
 
 
 export function updateSelectedTags() {
@@ -61,29 +62,9 @@ export function updateUnselectedTags() {
   })
 }
 
-function getSelectedTagsCopy(){
-    return [...tagsSelected]
+export function getSelectedTagsCopy(){
+  return [...tagsSelected]
 }
-
-export function updateTagsFiltered(){
-  tagsFiltered = getSelectedTagsCopy()
-  showTagBadges(tagsFiltered,filteredByTagListDiv)
-}
-
-export function updateTagsExcluded(){
-  tagsExcluded = getSelectedTagsCopy()
-  showTagBadges(tagsExcluded, excludedTagListDiv)
-}
-
-export function getTagsFiltered(){
-  return tagsFiltered
-}
-
-export function getTagsExcluded(){
-  return tagsExcluded
-}
-
-
 
 /**
  * Creates and appends colored tag badges to a target container.
@@ -102,6 +83,131 @@ export function showTagBadges(tagList, container) {
         container.appendChild(badge)
     })
 }
+
+////////////////////////////////// Filtering System ///////////////////////////
+
+export function clearFilteringSystem(){
+  tagsFiltered = []
+  tagsExcluded = []
+
+  updateTagsExcluded()
+  updateTagsFiltered()
+
+  filterDirty = false;
+  updateFilterButtonUI();
+}
+
+export function getTagsFiltered(){
+  return tagsFiltered
+}
+
+export function getTagsExcluded(){
+  return tagsExcluded
+}
+
+function copySelectionToFilterByTags(){
+  tagsFiltered = getSelectedTagsCopy();
+  markFilteringDirty()
+  updateTagsFiltered()
+}
+
+function copySelectionToExcludedTags(){
+  tagsExcluded = getSelectedTagsCopy();
+  markFilteringDirty()
+  updateTagsExcluded()
+}
+
+
+let filterDirty = true; // initial state: needs filtering
+
+const filterBtn = document.getElementById('apply-filtering-btn');
+
+export function applyFiltering() {
+  if (!filterDirty) return;
+  clearPhotoSelect()
+  
+  // Your actual filtering logic here
+  console.log('Filtering applied');
+
+  filterDirty = false;
+  updateFilterButtonUI();
+}
+
+export function markFilteringDirty() {
+  filterDirty = true;
+  updateFilterButtonUI();
+}
+
+function updateFilterButtonUI() {
+  if (filterDirty) {
+    filterBtn.disabled = false;
+    filterBtn.classList.remove('btn-inactive');
+  } else {
+    filterBtn.disabled = true;
+    filterBtn.classList.add('btn-inactive');
+  }
+}
+
+/**
+ * Creates and appends colored tag badges to a target container.
+ *
+ * @param {Array} tagList - Array of tags, each with a `name` and `color` field.
+ * @param {HTMLElement} container - DOM element where badges will be appended.
+ */
+function showTagBadgesFilteredBy() {
+    filteredByTagListDiv.innerHTML = ''
+
+    tagsFiltered.forEach(tag => {
+        const badge = document.createElement('span')
+        badge.textContent = tag.name
+        badge.style.backgroundColor = tag.color || '#999'
+        badge.classList.add('tag-badge')
+        badge.addEventListener('click', () => {
+          tagsFiltered = tagsFiltered.filter(t => t.id !== tag.id)
+          markFilteringDirty()
+          updateTagsFiltered()
+        })
+        filteredByTagListDiv.appendChild(badge)
+    })
+}
+
+function showTagBadgesExcluded() {
+    excludedTagListDiv.innerHTML = ''
+
+    tagsExcluded.forEach(tag => {
+        const badge = document.createElement('span')
+        badge.textContent = tag.name
+        badge.style.backgroundColor = tag.color || '#999'
+        badge.classList.add('tag-badge')
+        badge.addEventListener('click', () => {
+          tagsExcluded = tagsExcluded.filter(t => t.id !== tag.id)
+          markFilteringDirty()
+          updateTagsExcluded()
+        })
+        excludedTagListDiv.appendChild(badge)
+    })
+}
+
+
+export function updateTagsFiltered() {
+
+  // Remove any tag in tagsFiltered from tagsExcluded
+  tagsExcluded = tagsExcluded.filter(tag => !tagsFiltered.includes(tag));
+  
+  // Show tags from both lists
+  showTagBadgesExcluded()
+  showTagBadgesFilteredBy() 
+}
+
+export function updateTagsExcluded() {
+
+  // Remove any tag in tagsExcluded from tagsFiltered
+  tagsFiltered = tagsFiltered.filter(tag => !tagsExcluded.includes(tag));
+  
+  showTagBadgesExcluded()
+  showTagBadgesFilteredBy() 
+}
+
 
 export function getSelectedTagsID() {
     return tagsSelected.map(tag => tag.id)
@@ -139,6 +245,9 @@ export function getTagsByIds(tagIds) {
     .map(id => tagsList.find(tag => tag.id === id))
     .filter(tag => tag !== undefined);  // remove missing
 }
+
+
+//////////////////////////////////// Tag Selection System /////////////////////
 
 const setTagPhotoBtn = document.getElementById('tag-set-to-photo')
 const addTagPhotoBtn = document.getElementById('tag-add-to-photo')
@@ -197,9 +306,15 @@ addTagPhotoBtn.addEventListener('click', async () => {
 })
 
 filterByTagBtn.addEventListener('click', async () => {
-  updateTagsFiltered()
+  copySelectionToFilterByTags()
 })
 
 excludeTagBtn.addEventListener('click', async () => {
-  updateTagsExcluded()
+  copySelectionToExcludedTags()
 })
+
+const selectModalTagList = document.getElementById('select-modal-tag-list')
+
+export function updateSelectModaltagList(){
+  showTagBadges(tagsSelected, selectModalTagList)
+}

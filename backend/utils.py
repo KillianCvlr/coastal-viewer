@@ -80,7 +80,7 @@ def parse_photos_from_folder(
                 photo = PhotoCreate(
                     filename=fname,
                     filepath=os.path.relpath(full_path, start="/app/rawphotos"),
-                    in_surey_index = -1,
+                    in_survey_index = -1,
                     datetime=dt,
                     coords=coords,
                     is_underwater=is_underwater,
@@ -96,7 +96,7 @@ def parse_photos_from_folder(
     photo_list.sort(key=lambda p: p.filename)
     i = 0
     for photo in photo_list :
-            photo.in_surey_index = i
+            photo.in_survey_index = i
             i +=1
     return photo_list
 

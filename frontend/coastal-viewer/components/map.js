@@ -1,15 +1,54 @@
-import { changePhotoDisplayToIndex } from './navigationLogic.js'
+import { changePhotoDisplayToIndex, getBegSelectIndexInNav, getCurrentSurveyCoords, getEndSelectIndexInNav } from './navigationLogic.js'
 
 let map
 let markerGroup
 let navMarkerGroup
 let backControl = null 
 let navMarker = null;
+let selectMarkerBeg = null
+let selectMarkerEnd = null
+
+
+const redIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+const blueIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+const violetIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+const greenIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
 
 const navWrapper = document.getElementById("nav")
 
 export function initMap() {
-  map = L.map('map').setView([43.6, 3.9], 4)
+  map = L.map('map', {keyboard: false}).setView([43.6, 3.9], 4)
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 19,
     attribution: 'Tiles © Esri'
@@ -65,8 +104,8 @@ export function removeBackButtonControl() {
 }
 
 export function addPhotoMarkers(photos) {
-  photos.forEach(photo => {
-    if ((photo.coords) && (photo.in_surey_index % 5 == 0)) {
+  photos.forEach((photo, index) => {
+    if ((photo.coords)) {
       const marker = L.circleMarker([photo.coords[0], photo.coords[1]], {
         radius: 2,
         color: "#9f36f1",
@@ -74,7 +113,7 @@ export function addPhotoMarkers(photos) {
         fillOpacity: 1
       })
       marker.on('click', () => {
-        changePhotoDisplayToIndex(photo.in_surey_index)
+        changePhotoDisplayToIndex(index)
       })
 
       marker.addTo(markerGroup)
@@ -85,10 +124,9 @@ export function addPhotoMarkers(photos) {
 export function addSurveysMarkers(surveys) {
   surveys.forEach(survey => {
     if (survey.coords) {
+
       const marker = L.marker([survey.coords[0], survey.coords[1]], {
-        color: "#9f36f1",
-        fillColor: "#9f36f1",
-        fillOpacity: 1
+        icon :blueIcon
       })
 
       marker.bindPopup(`<b>${survey.survey_name}</b><br>${survey.datetime || ''}`)
@@ -116,28 +154,110 @@ export function addSurveysMarkers(surveys) {
   })
 }
 
-export function updateNavMarker(lat,lng){
-  const position = [lat, lng];
-
-  if (navMarker) {
-    // Move existing marker
-    navMarker.setLatLng(position);
+export function updateNavMarker(coords){
+  if (coords){
+    const position = [coords[0], coords[1]]
+    if (navMarker) {
+      // Move existing marker
+      navMarker.setLatLng(position);
+      navMarker.setIcon(violetIcon)
+    } else {
+      // Create it the first time
+      navMarker = L.marker(position, {
+        icon: violetIcon
+      })
+      navMarker.addTo(navMarkerGroup);
+    }
   } else {
-    // Create it the first time
-    navMarker = L.marker(position, {
-      color: "#9f36f1",
-      fillColor: "#9f36f1",
-      fillOpacity: 1
-    })
-    navMarker.addTo(navMarkerGroup);
+    if(navMarker){
+      navMarker.setIcon(redIcon)
+    }
+    else {
+      const surveyCoords = getCurrentSurveyCoords()
+      if (surveyCoords){
+        navMarker = L.marker(surveyCoords, {
+          icon: redIcon
+        })
+        navMarker.addTo(navMarkerGroup);
+      }
+    }
   }
+  navMarker.on('click', () => {
+    map.flyTo(navMarker.getLatLng(), 18, {
+      animate: true,
+      duration: 1
+    })
+  })
 }
+
+export function updateSelectMarkerBeg(){
+  if(selectMarkerBeg){
+    if (navMarker) {
+      selectMarkerBeg.setLatLng(navMarker.getLatLng());
+    } else {
+      const surveyCoords = getCurrentSurveyCoords()
+      if (surveyCoords){
+        selectMarkerBeg.setLatLng(surveyCoords)
+      }
+    }
+  } else {
+    if (navMarker) {
+      selectMarkerBeg = L.marker(navMarker.getLatLng(), {
+          icon: greenIcon
+      })
+      selectMarkerBeg.addTo(navMarkerGroup);
+    }
+    else {
+      const surveyCoords = getCurrentSurveyCoords()
+      selectMarkerBeg = L.marker(surveyCoords, {
+          icon: greenIcon
+      })
+      selectMarkerBeg.addTo(navMarkerGroup);
+    }
+  }
+  selectMarkerBeg.on('click', () =>{
+    changePhotoDisplayToIndex(getBegSelectIndexInNav())
+  })
+}
+
+export function updateSelectMarkerEnd(){
+  if(selectMarkerEnd){
+    if (navMarker) {
+      selectMarkerEnd.setLatLng(navMarker.getLatLng());
+    } else {
+      const surveyCoords = getCurrentSurveyCoords()
+      if (surveyCoords){
+        selectMarkerEnd.setLatLng(surveyCoords)
+      }
+    }
+  } else {
+    if (navMarker) {
+      selectMarkerEnd = L.marker(navMarker.getLatLng(), {
+          icon: greenIcon
+      })
+      selectMarkerEnd.addTo(navMarkerGroup);
+    }
+    else {
+      const surveyCoords = getCurrentSurveyCoords()
+      selectMarkerEnd = L.marker(surveyCoords, {
+          icon: greenIcon
+      })
+      selectMarkerEnd.addTo(navMarkerGroup);
+    }
+  }
+  selectMarkerBeg.on('click', () =>{
+    changePhotoDisplayToIndex(getEndSelectIndexInNav())
+  })
+}
+
 
 export function clearPhotoMarkers() {
   if (markerGroup) markerGroup.clearLayers();
   if (navMarkerGroup) {
     navMarkerGroup.clearLayers()  
     navMarker = null;
+    selectMarkerBeg = null
+    selectMarkerEnd = null
   }
 }
 

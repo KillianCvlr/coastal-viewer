@@ -14,7 +14,7 @@ CREATE TABLE  IF NOT EXISTS field_surveys (
 
 CREATE TABLE IF NOT EXISTS photos (
   id SERIAL PRIMARY KEY,
-  in_surey_index INTEGER DEFAULT (-1),
+  in_survey_index INTEGER DEFAULT (-1),
   filename TEXT,
   filepath TEXT UNIQUE,
   datetime TIMESTAMP,

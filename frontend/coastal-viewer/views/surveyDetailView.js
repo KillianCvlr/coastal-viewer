@@ -5,9 +5,9 @@ import { updateUnderNavList, updateAboveNavList, cleanAllNav, setCurrentSurvey, 
 import { updateTagsList } from '../components/tagLogic.js';
 
 export async function renderSurveyDetail(surveyId) {
+    cleanAllNav();
     clearPhotoMarkers();
     clearSurveyListImagePanel()
-    cleanAllNav();
     addBackButtonControl();
     updateTagsList()
 
@@ -22,7 +22,7 @@ export async function renderSurveyDetail(surveyId) {
     fetchSurveyPhotosAboveWater(surveyId)
         .then(photos =>{
             setaboveAllList(photos)
-            updateAboveNavList(photos)
+            updateAboveNavList()
             addPhotoMarkers(getAboveNavList())})
         .catch(err => {
             console.error("Error loading photos above water:", err)
@@ -30,7 +30,7 @@ export async function renderSurveyDetail(surveyId) {
     fetchSurveyPhotosUnderWater(surveyId)
         .then(photos =>{
             setunderAllList(photos)
-            updateUnderNavList(photos)})
+            updateUnderNavList()})
         .catch(err => {
             console.error("Error loading photos under water:", err)
         });

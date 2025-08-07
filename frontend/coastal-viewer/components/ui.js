@@ -1,7 +1,7 @@
 import { deleteTag, postNewTag, postOffset } from '../../shared/api.js';
-import { refreshMap } from './map.js'
-import {addToDisplayIndex, getCurrentSurveyID, nextPhotoDisplayIndex, previousPhotoDisplayIndex, setCurrentSurvey, subToDisplayIndex, updatePanelPhoto} from './navigationLogic.js'
-import { updateTagsList } from './tagLogic.js';
+import {  refreshMap } from './map.js'
+import {addToDisplayIndex, changePhotoDisplayToIndex, getAboveNavList, getBegSelectIndexInNav, getCurrentSurveyID, getEndSelectIndexInNav, nextphotoDisplayIndexInNav, previousphotoDisplayIndexInNav, setBegSelectToCurrDisplay, setCurrentSurvey, setEndSelectToCurrDisplay, subToDisplayIndex, updateAboveNavList, updatePanelPhoto} from './navigationLogic.js'
+import { applyFiltering, updateSelectModaltagList, updateTagsList } from './tagLogic.js';
 
 ///////////////////////////////RESIZERS//////////////////////////////////////// 
 
@@ -43,6 +43,15 @@ export function setupResizers() {
   })
 }
 //////////////////////////////Nav-Buttons//////////////////////////////////////
+const fastTravelAmountDiv = document.getElementById("fast-travel-amount")
+const navPrevDiv = document.getElementById('nav-prev')
+const navNextDiv = document.getElementById('nav-next')
+const fastPrevDiv = document.getElementById("fast-prev")
+const fastNextDiv = document.getElementById("fast-next")
+const applyFilteringBtn = document.getElementById("apply-filtering-btn")
+
+const begSelectBtn = document.getElementById("beg-select-btn")
+const endSelectBtn = document.getElementById("end-select-btn")
 
 // Preventing map scroll when in nav div 
 document.getElementById('nav').addEventListener('wheel', function(e) {
@@ -52,28 +61,45 @@ document.getElementById('nav').addEventListener('wheel', function(e) {
 }, { passive: false });
 
 
-document.getElementById('nav-prev').addEventListener('click', () => {
-  previousPhotoDisplayIndex()
+navPrevDiv.addEventListener('click', () => {
+  previousphotoDisplayIndexInNav()
 })
 
-document.getElementById('nav-next').addEventListener('click', () => {
-  nextPhotoDisplayIndex()
+navNextDiv.addEventListener('click', () => {
+  nextphotoDisplayIndexInNav()
 })
 
 
-document.getElementById("fast-prev").addEventListener("click", () => {
-  const amount = parseInt(document.getElementById("fast-travel-amount").value) || 1;
+fastPrevDiv.addEventListener("click", () => {
+  const amount = parseInt(fastTravelAmountDiv.value) || 1;
   console.log(`Going back ${amount} steps`);
   subToDisplayIndex(amount)
   // your logic to go back
 });
 
-document.getElementById("fast-next").addEventListener("click", () => {
-  const amount = parseInt(document.getElementById("fast-travel-amount").value) || 1;
+fastNextDiv.addEventListener("click", () => {
+  const amount = parseInt(fastTravelAmountDiv.value) || 1;
   console.log(`Going forward ${amount} steps`);
   addToDisplayIndex(amount)
   // your logic to go forward
 });
+
+applyFilteringBtn.addEventListener("click", () => {
+  applyFiltering()
+  updateAboveNavList()
+});
+
+begSelectBtn.addEventListener("click", () => {
+  setBegSelectToCurrDisplay()
+  begSelectBtn.innerHTML = `${getBegSelectIndexInNav()}`
+});
+
+endSelectBtn.addEventListener("click", () => {
+  setEndSelectToCurrDisplay()
+  endSelectBtn.innerHTML = `${getEndSelectIndexInNav()}`
+});
+
+
 
 /////////////////////////////Tag Modal /////////////////////////////////////////
 
@@ -188,5 +214,89 @@ offsetModalValidate.addEventListener('click', async () => {
     // ⛔ Error: show in UI
     offsetModalError.textContent = err.message || 'Error creating offset.';
     console.error("UI display error:", err.message);
+  }
+});
+
+/////////////////////////////Menu Modal Logic////////////////////////////////
+
+const menuModal = document.getElementById('menu-modal');
+const menuModalOpenBtn = document.getElementById('menu-modal-open-btn')
+const menuModalCloseBtn = document.getElementById('menu-modal-close-btn');
+
+menuModalOpenBtn.addEventListener('click', () => {
+  menuModal.classList.remove('hidden');
+  menuModal.style.display = 'flex';
+});
+
+menuModalCloseBtn.addEventListener('click', () => {
+  menuModal.classList.add('hidden');
+  menuModal.style.display = 'none';
+  menuModalError.textContent = '';
+});
+
+
+/////////////////////////////Select Modal Logic////////////////////////////////
+
+const selectModal = document.getElementById('select-modal');
+const selectModalOpenBtn = document.getElementById('select-modal-open-btn')
+const selectModalCloseBtn = document.getElementById('select-modal-close-btn');
+const selectModalAddBtn = document.getElementById('select-modal-set');
+const selectModalSetBtn = document.getElementById('select-modal-add');
+const selectModalTagList = document.getElementById('select-modal-tag-list')
+const selectModalPhotoSelect = document.getElementById('select-modal-photo-select')
+
+selectModalOpenBtn.addEventListener('click', () => {
+  if ((getBegSelectIndexInNav() === -1) || (getEndSelectIndexInNav() === -1)){
+    alert("Please set up selection markers before continuing")
+    return
+  }
+  updateSelectModaltagList()
+  selectModal.classList.remove('hidden');
+  selectModal.style.display = 'flex';
+});
+
+selectModalCloseBtn.addEventListener('click', () => {
+  selectModal.classList.add('hidden');
+  selectModal.style.display = 'none';
+  selectModalError.textContent = '';
+});
+
+
+///////////////////////////// Keyboard Logic //////////////////////////////////
+
+const setTagPhotoBtn = document.getElementById('tag-set-to-photo')
+const addTagPhotoBtn = document.getElementById('tag-add-to-photo')
+const filterByTagBtn = document.getElementById('tag-filter-by-btn')
+const excludeTagBtn = document.getElementById('tag-exclude-btn')
+const toggleInfoBarBtn = document.getElementById('toggle-info-btn');
+
+
+
+document.addEventListener('keydown', function(event) {
+  switch (event.key) {
+    case 'a':
+      addTagPhotoBtn?.click();
+      break;
+    case 's':
+      setTagPhotoBtn?.click();
+      break;
+    case 'e':
+      excludeTagBtn?.click();
+      break;
+    case 'f':
+      filterByTagBtn?.click();
+      break;
+    case 'u':
+      applyFilteringBtn?.click();
+      break;
+    case 'ArrowLeft':
+      navPrevDiv?.click();
+      break;
+    case 'ArrowRight':
+      navNextDiv?.click();
+      break;
+    case 'i':
+      toggleInfoBarBtn?.click();
+      break;
   }
 });

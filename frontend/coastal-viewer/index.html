@@ -19,36 +19,40 @@
             <div id="photo-under-tag-content"></div>
           </div>
           <button id="toggle-info-btn">☰</button>
+          <button id="menu-modal-open-btn" class="btn">Home</button>
           
           <div id="nav">
-            <div id = "menu-buttons-wrapper">
-              <a href="/survey-manager/" class="btn">Survey Manager</a>
-              <div id="openTagModalBtn" class="btn"> Manage Tags</div>
-              <label class="btn">
-                <input type="checkbox" id="fullres-toggle"> Full resolution
-              </label>
-              <label class="btn">
-                <input type="checkbox" id="magnifying-toggle"> Zoom Mode
-              </label>
+            <div id="filtering-system-wrapper">
+              <button id="apply-filtering-btn" class="btn">Apply filtering</button> 
+
+              <div id="filtering-system-subdiv">
+                <div id="filter-by-wrapper">
+                  <button id="tag-filter-by-btn" class="btn">Filter by :</button>
+                  <div id="nav-filter-tag-list" class="tag-list"></div>
+                </div>
+                <div style="width:1px; height:100%; background:#ccc;"></div>
+                <div id="exclude-wrapper">
+                  <button id="tag-exclude-btn" class="btn">Exclude :</button>
+                  <div id="nav-exclude-tag-list" class="tag-list"></div>
+                </div>
+              </div>
             </div>
-  
+            
             <div id="tag-selection-wrapper">
               <div id="tag-selection-action">
                 <button id="tag-add-to-photo" class="btn"> Add </button>
                 <button id="tag-set-to-photo" class="btn"> Set </button>
                 To Photo
                 <div style="width:1px; height:100%; background:#ccc;"></div>
-                <button id="tag-exclude-btn" class="btn">Exclude</button>
-                <button id="tag-filter-by-btn" class="btn">Filter by</button>
-                Tag
+                <button id="select-modal-open-btn" class="btn" style="margin-left: auto;"> To Selection</button>
               </div>
               <div id="tag-selection-lists">
-                <div id="tag-unselected-list"> </div>
+                <div id="tag-unselected-list" class="tag-list"> </div>
                 <div> <hr></div>
-                <div id="tag-selected-list"> </div>
+                <div id="tag-selected-list" class="tag-list"> </div>
               </div>
             </div>
-  
+            
             <div id="nav-wrapper">
               <div id = travel-system>
                 <div id= "simple-travel-bar">
@@ -59,21 +63,20 @@
                 <div id="fast-travel-bar">
                   <button id="fast-prev" class="btn">⏮️</button>
                   <button id="fast-next" class="btn">⏭️</button>
-                </div> 
+                </div>
+                <hr style="width:100%;">
+              </div>
+              <div>
+                <button id="beg-select-btn" class="btn">beg</button>
+                <button id="end-select-btn" class="btn">end</button>
               </div>
               
-              <hr style="width:100%;">
-              
-              <div id="filtering-system">
-                <div id="nav-filter-tag-list"></div>
-                <div id="nav-exclude-tag-list"></div>
-              </div>
             </div>
-  
+            
           </div>
         </div>        
       </div>
-
+      
       <div id="resizer-col"></div>
       
       <div id="image-panel">
@@ -85,17 +88,37 @@
       <div id="loupe">
         <img id="loupe-image" />
       </div>
-
+      
+      <div id="menu-modal" class="modal hidden">
+        <div id= "menu-modal-content" class="modal-content">
+          <span id="menu-modal-close-btn" class="close">&times;</span>
+          <h3>Menu</h3>
+          
+          <div id = "menu-buttons-wrapper">
+            <a href="/survey-manager/" class="btn">Survey Manager</a>
+            <label class="btn" >
+              <input type="checkbox" id="fullres-toggle" checked="true"> Full resolution
+            </label>
+            <label class="btn">
+              <input type="checkbox" id="magnifying-toggle" checked="true"> Zoom Mode
+            </label>
+            <button id="openTagModalBtn" class="btn"> Manage Tags</button>
+          </div>
+        </div>
+      </div>
+      
       <div id="tagModal" class="modal hidden">
         <div class="modal-content">
           <span id="closeTagModalBtn" class="close">&times;</span>
           <h3>Existing tags</h3>
           <div id="modal-tag-list"></div>
 
+          <hr>
           <h3>Delete Tag</h3>
           <input type="text" id="deleteTagName" placeholder="Type the tag's name to delete" />
           <button id="deleteTagBtn" class="btn" style="background:#ca0e0e;">Delete</button>
-
+          <hr>
+          
           <h3>Create New Tag</h3>
           <div style="display: flex; gap: 8px; margin: 5px 0;">
             <!-- Predefined colors -->
@@ -132,8 +155,22 @@
           <p id="offset-modal-error" class="error"></p>
         </div>
       </div>
+
+      <div id="select-modal" class="modal hidden">
+        <div class="modal-content">
+          <span id="select-modal-close-btn" class="close">&times;</span>
+          <h3> Tags Selected</h3>
+          <div id="select-modal-tag-list"></div>
+          <h3> Photo Selection :</h3>
+          <div id="select-modal-photo-select"></div>
+          <button id="select-modal-add" class="btn">Add</button>
+          <button id="select-modal-set" class="btn">set</button>
+          <p id="select-modal-error" class="error"></p>
+        </div>
+      </div>
+
     </div>
     <script type="module" src="/coastal-viewer/main.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   </body>
-</html>
+  </html>

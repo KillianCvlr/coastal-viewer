@@ -20,7 +20,7 @@ photo_tags = Table(
 class Photo(Base):
     __tablename__ = "photos"
 
-    in_surey_index = Column(Integer, default = -1)
+    in_survey_index = Column(Integer, default = -1)
     id = Column(Integer, primary_key=True, index=True)
     filename = Column(String, index=True)
     filepath = Column(String, unique=True, index=True)

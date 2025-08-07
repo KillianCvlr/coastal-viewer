@@ -36,6 +36,11 @@ html, body {
       background-color: #0056b3;
     }
 
+    .btn-inactive {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     #map {
       flex-grow: 1;
       min-height: 50px;
@@ -135,6 +140,13 @@ html, body {
 
 /* //////////////////////////// Photo Info bar /////////////////////// */
 
+#menu-modal-open-btn {
+  position: absolute;
+  bottom: 28%;
+  left: 10px;
+  z-index: 1002; 
+  padding: 8px 10px;
+}
 
 /* --- Toggle button fixed at top-right --- */
 #toggle-info-btn {
@@ -208,50 +220,33 @@ html, body {
   justify-content: flex-start;
   padding: 20px;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.3); /* optional semi-transparent background */
+  background: rgba(255, 255, 255, 0.3);
   backdrop-filter: blur(4px);           /* optional glass effect */
-  z-index: 1004;                         /* ensure it's on top of map */
+  z-index: 1004;                         
 }
 
-#menu-buttons-wrapper {
-  /* Remove absolute positioning */
-  position: static; /* changed */
-  transform: none;  /* changed */
-  left: auto;       /* remove */
-  bottom: auto;     /* remove */
-
-  display: inline-flex;
-  flex-direction: column;
-  flex: 0 0 auto;
-  align-items: stretch;
-  justify-content: flex-start;
-  gap: 10px;
-  background-color: rgba(0, 0, 0, 0.8);
-  box-shadow: -2px 0 5px rgba(0,0,0,0.3);
-  padding: 15px;
-  color: white;
-}
 
 #nav-wrapper{
-  position: static; /* changed */
-  transform: none;  /* changed */
-  left: auto;       /* remove */
-  bottom: auto;     /* remove */
+  position: static; 
+  transform: none;  
+  left: auto;       
+  bottom: auto;     
 
   display: flex;
   flex-direction: column;
   gap: 10px;
   background-color: rgba(0, 0, 0, 0.8);
-  box-shadow: -2px 0 5px rgba(0,0,0,0.3);  padding: 6px 12px;
+  box-shadow: -2px 0 5px rgba(0,0,0,0.3);  
+  padding: 6px 12px;
   border-radius: 8px;
 }
 
 
 #travel-system {
-  position: static; /* changed */
-  transform: none;  /* changed */
-  right: auto;      /* remove */
-
+  position: static;
+  transform: none;  
+  right: auto;      
+  
   display: flex;
   align-items: center;
   justify-content: center;
@@ -259,25 +254,77 @@ html, body {
   
 }
 
-#filtering-system{
-
+#fast-travel-bar input[type="number"] {
+  width: 50%;
+  margin-top: 10px;
+  padding: 5px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 4px;
 }
 
+#filtering-system-wrapper{
+  position: static; 
+  transform: none;  
+  left: auto;       
+  bottom: auto;  
+  width: 30%;   
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: rgba(0, 0, 0, 0.8);
+  box-shadow: -2px 0 5px rgba(0,0,0,0.3);  
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+#filtering-system-subdiv{
+  position: static; 
+  transform: none;  
+  left: auto;       
+  bottom: auto;  
+  width: 100%;  
+  height: 100%; 
+
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+#filter-by-wrapper{
+  position: relative; 
+  transform: none;  
+  left: auto;       
+  bottom: auto;  
+  width: 50%; 
+  color: white;
+}
+
+#exclude-wrapper{
+  position: relative; 
+  transform: none;  
+  left: auto;       
+  bottom: auto;  
+  width: 50%; 
+  color: white;
+}
 
 #tag-selection-wrapper {
   position: relative;
   display: flex;
   flex-direction: column-reverse;
   gap: 10px;
-  background-color: rgba(0, 0, 0, 0.8);  /* dark like the menu buttons */
+  background-color: rgba(0, 0, 0, 0.8);  
   padding: 15px;
   border-radius: 8px;
   box-shadow: -2px 0 5px rgba(0,0,0,0.3);
-  color: white;  /* ensure text is readable */
-  flex-grow: 1;  /* take available space between left/right */
-  flex-shrink: 1; /* ✅ allow it to shrink if needed */
-  min-width: 0;   /* ✅ important to allow flex shrinking */
-  margin: 0 20px; /* optional spacing between side panels */
+  color: white;  
+  flex-grow: 1;  
+  flex-shrink: 1; 
+  min-width: 0;   
+  margin: 0 20px;
   overflow-y: auto;
 }
 
@@ -292,14 +339,6 @@ html, body {
 }
 
 
-#fast-travel-bar input[type="number"] {
-  width: 60px;
-  padding: 4px;
-  font-size: 14px;
-  text-align: center;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
 
 /*****************************Tag Modal***************************************/
 .modal {
@@ -321,7 +360,7 @@ html, body {
   color: #fff;
   padding: 20px;
   border-radius: 8px;
-  width: 300px;
+  width: 400px;
 }
 
 .modal-content input {
@@ -342,6 +381,11 @@ html, body {
 .close {
   float: right;
   cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 12px;
+  color: white;
+  font-size: 2em;
+  font-weight: bold;
 }
 
 .hidden {
@@ -354,14 +398,14 @@ html, body {
 }
 
 .tag-badge {
-    display: inline-block;
-    padding: 4px 8px;
-    margin: 2px;
-    border-radius: 12px;
-    color: white;
-    font-size: 0.9em;
-    font-weight: bold;
-    white-space: nowrap;
+  display: inline-block;
+  padding: 4px 8px;
+  margin: 2px;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.9em;
+  font-weight: bold;
+  white-space: nowrap;
 }
 
 .offset-badge {
@@ -384,3 +428,38 @@ html, body {
 .offset-badge:hover {
       background-color: #0056b3;
     }
+
+.tag-list{
+  overflow-y: scroll;
+}
+
+#menu-modal-content{
+  position: relative; 
+  transform: none;  
+  right: auto;
+  height: 50%;     
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+#menu-modal-close-btn{
+  position: absolute;
+  top : 10px;
+  right: 10px;
+}
+#menu-buttons-wrapper {
+  /* Remove absolute positioning */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  flex: 1 1 auto;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: 10px;
+  padding: 15px;
+}

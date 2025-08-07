@@ -25,7 +25,7 @@ class TagOut(TagBase):
 
 class PhotoOut(BaseModel):
     id : int
-    in_surey_index : int
+    in_survey_index : int
     filename: str
     filepath: str
     coords: Optional[list[float]] = None
@@ -42,7 +42,7 @@ class PhotoOut(BaseModel):
 
 class PhotoCreate(BaseModel) :
     filename: str
-    in_surey_index: int
+    in_survey_index: int
     filepath: str
     coords: Optional[list[float]] = None
     datetime: Optional[datetime]

@@ -25,7 +25,6 @@ def get_photo_data(photo_id: int, db: Session = Depends(get_db)):
 
 @router.get("/photos/{photo_path:path}/fullRes/")
 def serve_photo_by_path(photo_path: str):
-    logger.info(f"get fullres photo request for {photo_path}")
     if ".." in photo_path or photo_path.startswith("/"):
         logger.error("Invalid Path Requested")
         raise HTTPException(400, "Invalid path")
@@ -39,7 +38,6 @@ def serve_photo_by_path(photo_path: str):
 
 @router.get("/photos/{photo_path:path}/downscaled/")
 def serve_downscaled_image(photo_path: str):
-    logger.info(f"get photo request for {photo_path}")
     if ".." in photo_path or photo_path.startswith("/"):
         logger.error("Invalid Path Requested")
         raise HTTPException(400, "Invalid path")
