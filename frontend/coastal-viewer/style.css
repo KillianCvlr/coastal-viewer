@@ -42,6 +42,7 @@ html, body {
     }
 
     #map {
+      background-color: rgba(0, 0, 0, 0.8);
       flex-grow: 1;
       min-height: 50px;
       width: 100%;
@@ -68,7 +69,7 @@ html, body {
         flex-basis: 300px; /* Default width */
         min-width: 200px;
         max-width: 100%;
-        background: #f9f9f9;
+        background-color: rgba(0, 0, 0, 0.856);
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -222,7 +223,7 @@ html, body {
   bottom: 0;              
   left: 0;
   width: 100%;            
-  height: 30%;           
+  height: 27%;           
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -244,7 +245,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.747);
   box-shadow: -2px 0 5px rgba(0,0,0,0.3);  
   padding: 6px 12px;
   border-radius: 8px;
@@ -350,6 +351,19 @@ html, body {
 
 
 /*****************************Tag Modal***************************************/
+  .close {
+    float: right;
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 12px;
+    color: white;
+    font-size: 2em;
+    font-weight: bold;
+  }
+
+  .hidden {
+    display: none;
+  }
 .modal {
   display: none;
   position: fixed;
@@ -387,19 +401,6 @@ html, body {
   padding: 6px 12px;
 }
 
-.close {
-  float: right;
-  cursor: pointer;
-  padding: 6px 12px;
-  border-radius: 12px;
-  color: white;
-  font-size: 2em;
-  font-weight: bold;
-}
-
-.hidden {
-  display: none;
-}
 
 .error {
   color: red;
@@ -461,51 +462,72 @@ html, body {
 }
 #menu-buttons-wrapper {
   /* Remove absolute positioning */
-  position: relative;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  flex: 1 1 auto;
   align-items: stretch;
   justify-content: flex-start;
   gap: 10px;
   padding: 15px;
 }
 
-#custom-logs-div {
-  position: absolute;
-  top: 10px;          /* distance du haut */
-  left: 50%;
-  transform: translateX(-50%); /* centré horizontalement */
-  
-  background: rgba(129, 129, 129, 0.7);
-  color: #fff;
-  font-family: monospace;
-  font-size: 9px;
-  line-height: 1.4;
+.menu-btn,
+.menu-btn:visited,
+.menu-btn:active {
+    display: flex;
+    width : auto;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    font-size: 1em;
+    text-decoration:none;
+    text-align: center;
+    border: none;
+    border-radius: 4px;
+    display: inline-block;
+    cursor: pointer;
+    flex-direction: column;
+    white-space: nowrap; 
+}
 
-  padding: 8px 12px;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+.menu-btn:hover {
+  background-color: #0056b3;
+}
 
-  max-width: 400px;
-  text-align: center;
+.menu-btn-inactive {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
+.menu-btn input[type="checkbox"] {
+  flex: 0 0 auto;
+  width:fit-content;
+  margin:auto;
+}
+
+
+/* Toast container at bottom-right */
+#toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-
+  gap: 10px;
   z-index: 3000;
 }
 
-
-
-.log-entry {
-  opacity: 1;
-  transition: opacity 1s ease-out;
-}
-
-.log-entry.fade {
-  opacity: 0;
+/* Each toast message */
+.toast {
+  background: rgba(50, 50, 50, 0.9);
+  color: #fff;
+  font-family: monospace;
+  font-size: 0.9em;
+  padding: 10px 16px;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  max-width: 300px;
+  display: flex;
+  align-items: center;
 }

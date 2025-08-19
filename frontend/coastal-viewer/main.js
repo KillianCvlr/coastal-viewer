@@ -6,6 +6,18 @@ import { renderSurveyDetail } from './views/surveyDetailView.js'
 
 import { initLoupe } from './components/impagePanel.js'
 
+// Token used for interrupting stale async updates
+let currentToken = null
+
+export function getCurrentToken(){
+  return currentToken
+}
+
+export function setCurrentToken(token){
+  currentToken = token
+}
+
+
 initMap()
 setupResizers()
 initLoupe()

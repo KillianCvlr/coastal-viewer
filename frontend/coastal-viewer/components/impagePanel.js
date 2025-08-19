@@ -178,4 +178,5 @@ export function clearSurveyListImagePanel(){
 export function clearPhotosImagePanel(){
   aboveWaterImage.src = ""
   underWaterImage.src = ""
+
 }

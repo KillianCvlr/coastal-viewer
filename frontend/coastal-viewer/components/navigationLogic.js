@@ -224,6 +224,7 @@ function getUnderPhotoIndex(){
 export function clearPhotoSelect(){
     begSelectIndexInNav = -1
     endSelectIndexInNav = -1
+    resetSelectBtnUi()
 }
 
 export function setBegSelectToCurrDisplay(){
@@ -256,6 +257,19 @@ export function setEndSelectToCurrDisplay(){
     }
 }
 
+export function selectAllNav(){
+    if(aboveNavList){
+        begSelectIndexInNav = 0
+        photoDisplayIndexInNav = begSelectIndexInNav
+        updateNavMarker(aboveNavList[photoDisplayIndexInNav].coords)
+        updateSelectMarkerBeg()
+        endSelectIndexInNav = navListLength - 1
+        photoDisplayIndexInNav = endSelectIndexInNav
+        updateNavMarker(aboveNavList[photoDisplayIndexInNav].coords)
+        updateSelectMarkerEnd()
+        updatePanelPhoto()
+    }
+}
 export function getBegSelectIndexInNav(){
     return begSelectIndexInNav
 }
@@ -323,10 +337,10 @@ export function exportNavToCsv(csvName) {
     console.info("Exporting Nav to CSV");
     let csvContent = "data:text/csv;charset=utf-8,";
     // header row first
-    csvContent += "AboveWater Path,Underwater Path,Location,Timestamp,AboveWater Tags,Underwater Tags\r\n";
+    csvContent += "AboveWater Path,Underwater Path,Location (lat),Location (long),Timestamp,AboveWater Tags,Underwater Tags\r\n";
 
 
-    for (let index = 0; index < aboveNavList.length; index++) {
+    for (let index = begSelectIndexInNav; index <= endSelectIndexInNav; index++) {
         try {
             let row = "";
             const photoAbove = aboveNavList[index];

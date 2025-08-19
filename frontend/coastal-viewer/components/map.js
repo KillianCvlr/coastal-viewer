@@ -140,12 +140,12 @@ export function addSurveysMarkers(surveys) {
       })
 
       marker.on('click', () => {
+        window.location.hash = `#/survey/${survey.id}`
         map.flyTo(marker.getLatLng(), 18, {
           animate: true,
           duration: 2
         })
         setTimeout(() => {
-          window.location.hash = `#/survey/${survey.id}`
           }, 2000) // match duration above
       })
 
@@ -184,7 +184,7 @@ export function updateNavMarker(coords){
   }
   navMarker.on('click', () => {
     map.flyTo(navMarker.getLatLng(), 18, {
-      animate: true,
+      animate: false,
       duration: 1
     })
   })

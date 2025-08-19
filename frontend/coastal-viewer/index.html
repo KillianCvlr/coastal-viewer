@@ -9,6 +9,7 @@
   </head>
   <body>
     <div id="container">
+      <div id="toast-container"></div>
       <div id="container-nav">
         <div id="map">
           <!-- Info bar slides underneath -->
@@ -20,9 +21,9 @@
           </div>
           <button id="toggle-info-btn">☰</button>
           
-          <div id="custom-toaster-div"></div>
           
           <div id="nav">
+            <button id="menu-modal-open-btn" class="btn"> 🏠 Home</button>
             <div id="filtering-system-wrapper">
               <button id="apply-filtering-btn" class="btn">Apply filtering</button> 
               
@@ -55,7 +56,6 @@
             </div>
             
             <div id="nav-wrapper">
-              <button id="menu-modal-open-btn" class="btn">Home</button>
               <div id = travel-system>
                 <div id= "simple-travel-bar">
                   <button id="nav-prev" class="btn">Prev</button>
@@ -67,10 +67,12 @@
                   <button id="fast-next" class="btn">⏭️</button>
                 </div>
                 <hr style="width:100%;">
-              </div>
-              <div>
-                <button id="beg-select-btn" class="btn">+</button>
-                <button id="end-select-btn" class="btn">+</button>
+                <div>
+                  <button id="beg-select-btn" class="btn">+</button>
+                  <button id="end-select-btn" class="btn">+</button>
+                </div>
+                <hr style="z-index: 0;">
+                <button id="select-all-btn" class="btn">Select All</button>
               </div>
               
             </div>
@@ -97,15 +99,19 @@
           <h3>Menu</h3>
           
           <div id = "menu-buttons-wrapper">
-            <a href="/survey-manager/" class="btn">Survey Manager</a>
-            <label class="btn" > Full resolution
-              <input type="checkbox" id="fullres-toggle" checked="true"> 
+            <a href="/survey-manager/" class="menu-btn">🗂️ Survey Manager </a>
+            <hr style="width: 100%;">
+
+            <label class="menu-btn" >  🖼️ Full Resolution
+              <input type="checkbox" id="fullres-toggle" checked="true">
             </label>
-            <label class="btn">
-              <input type="checkbox" id="magnifying-toggle" checked="true"> Zoom Mode
+
+            <label class="menu-btn"> 🔍 Zoom Mode
+              <input type="checkbox" id="magnifying-toggle" checked="true"> 
             </label>
-            <button id="openTagModalBtn" class="btn"> Manage Tags</button>
-            <button id="extraction-modal-open-btn" class="btn"> Extract Selection</button>
+            <hr style="width: 100%;">
+            <div id="openTagModalBtn" class="menu-btn">  🏷️ Manage Tags </div>
+            <div id="extraction-modal-open-btn" class="menu-btn"> 📄 Extract Selection </div>
           </div>
         </div>
       </div>

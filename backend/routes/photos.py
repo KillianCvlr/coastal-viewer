@@ -70,6 +70,10 @@ def no_coords_tag_exists(db: Session = Depends(get_db)):
 
 @router.post("/tags/", response_model=TagOut)
 def post_new_tag(tag: TagCreate, db: Session = Depends(get_db)):
+    if ',' in tag.name:
+        raise HTTPException(status_code=400, detail="Tag name cannot contain ','")
+    if '_' in tag.name:
+        raise HTTPException(status_code=400, detail="Tag name cannot contain '_'")
     db_tag = get_tag_by_name(db, tag.name)
     if db_tag:
         raise HTTPException(status_code=400, detail="Tag already exists")

@@ -1,6 +1,6 @@
 import { addTagsToPhotoList, setTagsToPhotoList, deleteTag, postNewTag, postOffset, popTagsToPhotoList } from '../../shared/api.js';
 import {  refreshMap } from './map.js'
-import {addToDisplayIndex, changePhotoDisplayToIndex, clearPhotoSelect, exportNavToCsv, getAboveNavList, getBegSelectIndexInNav, getCurrentSurveyID, getEndSelectIndexInNav, getSelectedPhotoIds, nextphotoDisplayIndexInNav, previousphotoDisplayIndexInNav, setBegSelectToCurrDisplay, setCurrentSurvey, setEndSelectToCurrDisplay, subToDisplayIndex, updateAboveNavList, updateListWithNewPhotoList, updatePanelPhoto} from './navigationLogic.js'
+import {addToDisplayIndex, exportNavToCsv, getAboveNavListLength, getBegSelectIndexInNav, getCurrentSurveyID, getEndSelectIndexInNav, getSelectedPhotoIds, nextphotoDisplayIndexInNav, previousphotoDisplayIndexInNav, selectAllNav, setBegSelectToCurrDisplay, setCurrentSurvey, setEndSelectToCurrDisplay, subToDisplayIndex, updateAboveNavList, updateListWithNewPhotoList, updatePanelPhoto} from './navigationLogic.js'
 import { applyFiltering, getSelectedTagsID, updateSelectModaltagList, updateTagsList } from './tagLogic.js';
 
 ///////////////////////////////RESIZERS//////////////////////////////////////// 
@@ -52,6 +52,7 @@ const applyFilteringBtn = document.getElementById("apply-filtering-btn")
 
 const begSelectBtn = document.getElementById("beg-select-btn")
 const endSelectBtn = document.getElementById("end-select-btn")
+const selectAllBtn = document.getElementById("select-all-btn")
 
 // Preventing map scroll when in nav div 
 document.getElementById('nav').addEventListener('wheel', function(e) {
@@ -101,12 +102,18 @@ endSelectBtn.addEventListener("click", () => {
   endSelectBtn.innerHTML = `${getEndSelectIndexInNav()}`
 });
 
+selectAllBtn.addEventListener("click", () => {
+  if (getAboveNavListLength() > 0 ){
+    selectAllNav()
+    begSelectBtn.innerHTML = `${getBegSelectIndexInNav()}`
+    endSelectBtn.innerHTML = `${getEndSelectIndexInNav()}`
+  }
+});
+
 export function resetSelectBtnUi(){
   begSelectBtn.innerHTML = "+"
   endSelectBtn.innerHTML = "+"
 }
-
-
 
 /////////////////////////////Tag Modal /////////////////////////////////////////
 
@@ -462,5 +469,37 @@ document.addEventListener('keydown', function(event) {
     case 'i':
       toggleInfoBarBtn?.click();
       break;
+    case 'Escape':
+      if (menuModal) {
+      // toggle only menu modal
+      menuModal.style.display =  (menuModal.style.display === 'none') ? 'flex' : 'none';
+    }
   }
 });
+
+document.querySelectorAll(".modal").forEach((modal) => {
+  const content = modal.querySelector(".modal-content");
+
+  // Close when clicking outside the modal content
+  modal.addEventListener("click", (event) => {
+    if (!content.contains(event.target)) {
+      modal.classList.add("hidden");
+      modal.style.display = 'none';
+    }
+  });
+});
+
+const toastContainer = document.getElementById('toast-container') 
+
+export function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+
+  toastContainer.appendChild(toast);
+}
+
+export function clearToasts(){
+  toastContainer.innerHTML = ""
+}
+

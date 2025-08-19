@@ -6,7 +6,6 @@ const abovetagContent = document.getElementById('photo-above-tag-content');
 const underInfoContent = document.getElementById('photo-under-info-content');
 const undertagContent = document.getElementById('photo-under-tag-content');
 
-let infoVisible = false;
 const toggleInfoBarBtn = document.getElementById('toggle-info-btn');
 const infoBar = document.getElementById('photo-info-bar');
 
@@ -14,6 +13,11 @@ toggleInfoBarBtn.addEventListener('click', () => {
   const isNowHidden = infoBar.classList.toggle('hidden');
   toggleInfoBarBtn.innerText = isNowHidden ? '◀' : '▶';
 });
+
+export function activateInfobar(){
+    const isNowHidden = infoBar.classList.toggle('hidden', true);
+    toggleInfoBarBtn.innerText = isNowHidden ? '◀' : '▶';
+}
 
 document.getElementById('photo-info-bar').addEventListener('wheel', function(e) {
   // Prevent scroll from reaching map when info bar is open
@@ -76,8 +80,6 @@ export function updatePhotoInfoBar(photoAbove, photoUnder) {
     }
     
     // --- Final display ---
-    infoVisible = true;
-    aboveInfoContent.classList.toggle('visible', infoVisible);
     underInfoContent.innerHTML = linesUnder.join('')
     aboveInfoContent.innerHTML = linesAbove.join('');
 
@@ -95,5 +97,7 @@ export function clearInfoBar(){
     undertagContent.innerHTML = ""
     abovetagContent.innerHTML = ""
     
+    const isNowHidden = infoBar.classList.add('hidden');
+    toggleInfoBarBtn.innerText = '◀';
 }
 

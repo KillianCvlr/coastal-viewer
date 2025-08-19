@@ -10,9 +10,11 @@ html, body {
   display: flex;
   height: 100%;
   width: 100%;
+  /* background-color:  rgba(0, 0, 0, 0.842); */
 }
 
 #container-right {
+  margin: 10px;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -21,9 +23,10 @@ html, body {
 }
 
 #container-left {
+  margin: 10px;
   display: flex;
   flex-direction: column;
-  width: 60%;
+  width: 80%;
   height: 100%;
   gap: 10px;
 }
@@ -75,6 +78,15 @@ html, body {
   gap: 10px;
 }
 
+
+#survey-form{
+  display: flex;
+  gap: 10px;
+  flex-direction: column;
+}
+
+
+
 .delete-btn {
   background-color: #e74c3c;
   color: white;
@@ -90,6 +102,8 @@ html, body {
 
 #log-output{
   border: 2px solid #666;
+  background-color: #fff;
+  overflow-y: scroll;
 }
 
 

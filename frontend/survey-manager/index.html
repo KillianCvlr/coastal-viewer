@@ -12,21 +12,23 @@
     
     <div id="container-left">
       <div>
-        <a href="/coastal-viewer/" class="btn">Return to coastal viewer</a>
+        <a href="/coastal-viewer/" class="btn">← To coastal viewer</a>
       </div>
+      <hr style="width: 100%;">
       <div id="survey-list"></div>
     </div>
-    
+    <hr>
     <div id="container-right">
-
+      <h3>Create a New Survey :</h3>
       <form id="survey-form">
         <input name="survey_name" placeholder="Survey Name" required>
         <textarea name="comment" placeholder="Comment"></textarea>
         <input name="abovewater_folder" placeholder="Above Water Folder">
         <input name="underwater_folder" placeholder="Under Water Folder">
         <input name="linking_file" placeholder="Linking File">
-        <button type="submit">Submit Survey</button>
+        <button type="submit" class="btn">Submit Survey</button>
       </form>
+      <hr style="width: 100%;">
       
       <div id="log-output" style="white-space: pre-wrap; font-family: monospace;"></div>
     </div>
