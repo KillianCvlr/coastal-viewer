@@ -1,8 +1,11 @@
 ### backend/crud.py
 from sqlalchemy.orm import Session, joinedload
-from models import Photo, Tag
+from models import Photo, Tag, photo_tags
 from schemas import PhotoCreate, TagBase, TagCreate
 from typing import List
+
+from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import delete, and_
 
 
 def get_all_photos_data(db: Session):
@@ -23,6 +26,15 @@ def get_first_photo_with_location(db: Session, survey_id: int):
         .filter(Photo.survey_id == survey_id, Photo.location.isnot(None))
         .first()
     )
+
+
+def get_missing_photo_ids(db: Session, photo_ids: list[int]) -> set[int]:
+    result = db.query(Photo.id).filter(Photo.id.in_(photo_ids)).all()
+    found_ids = {row[0] for row in result}
+    return set(photo_ids) - found_ids
+
+def get_photos_by_ids(db: Session, photo_ids: list[int]) -> list[Photo]:
+    return db.query(Photo).filter(Photo.id.in_(photo_ids)).all()
 
 ############################## Field Survey ###################################
 from models import FieldSurvey
@@ -101,6 +113,15 @@ def update_survey_with_first_photo(db: Session, survey: FieldSurvey, photo: Phot
 def get_num_surveys(db: Session):
     return db.query(FieldSurvey).count()
 
+def get_survey_photos_ids_without_loc(db: Session, survey_id:int) -> list[int]:
+    rows = (
+        db.query(Photo.id)
+        .filter(Photo.survey_id == survey_id)
+        .filter((Photo.location == None))
+        .all()
+    )
+    return [row[0] for row in rows] 
+
 ################################## TAG CRUD ###################################
 def read_all_tags(db: Session):
     return db.query(Tag).all()
@@ -119,6 +140,8 @@ def delete_tag_by_id(db: Session, tag_id: int):
     db.commit()
     return tag
 
+
+
 def delete_tag_by_name(db: Session, tag_name:str):
     tag = db.query(Tag).filter(Tag.name == tag_name).first()
     if not tag:
@@ -127,11 +150,51 @@ def delete_tag_by_name(db: Session, tag_name:str):
     db.commit()
     return tag
 
-
-
 def create_tag(db: Session, tag:TagCreate):
     new_tag = Tag(**tag.dict())
     db.add(new_tag)
     db.commit()
     db.refresh(new_tag)
     return new_tag
+
+def get_missing_tag_ids(db: Session, tag_ids: list[int]) -> set[int]:
+    result = db.query(Tag.id).filter(Tag.id.in_(tag_ids)).all()
+    found_ids = {row[0] for row in result}
+    return set(tag_ids) - found_ids
+
+def get_tags_by_ids(db: Session, tag_ids: list[int]) -> list[Tag]:
+    return db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
+
+def bulk_delete_and_set_photo_tags(db: Session, photo_ids: list[int], tag_ids: list[int]):
+    # 1. Clear old associations
+    db.execute(delete(photo_tags).where(photo_tags.c.photo_id.in_(photo_ids)))
+
+    if(len(tag_ids) > 0) :
+        # 2. Insert new associations
+        new_rows = [{"photo_id": pid, "tag_id": tid} for pid in photo_ids for tid in tag_ids]
+        db.execute(insert(photo_tags), new_rows)
+
+    db.commit()
+
+def bulk_add_photo_tags(db: Session, photo_ids: list[int], tag_ids: list[int]):
+    if(len(tag_ids) > 0) :
+        stmt = insert(photo_tags).values([
+            {"photo_id": pid, "tag_id": tid} 
+            for pid in photo_ids 
+            for tid in tag_ids
+        ])
+        stmt = stmt.on_conflict_do_nothing(index_elements=["photo_id", "tag_id"])
+
+        db.execute(stmt)
+    db.commit()
+
+def bulk_pop_photo_tags(db: Session, photo_ids: list[int], tag_ids: list[int]):
+    if(len(tag_ids) > 0) :
+        stmt = delete(photo_tags).where(
+        and_(
+            photo_tags.c.photo_id.in_(photo_ids),
+            photo_tags.c.tag_id.in_(tag_ids)
+            )
+        )   
+        db.execute(stmt)
+    db.commit()

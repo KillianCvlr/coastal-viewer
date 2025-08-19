@@ -163,7 +163,7 @@ export function renderSurveysListImagePanel(surveyData) {
         })
       actions.appendChild(goToBtn);
     }
-
+    
     item.appendChild(info);
     item.appendChild(info2);
     item.appendChild(actions);

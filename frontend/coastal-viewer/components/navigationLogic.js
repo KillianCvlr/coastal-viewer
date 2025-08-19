@@ -1,8 +1,9 @@
 // Loading Photo logic
 import {loadPhotoInPanelMain, loadPhotoInPanelSecond } from "./impagePanel"
 import { updatePhotoInfoBar } from "./infoBar"
-import { addPhotoMarkers, updateNavMarker, clearPhotoMarkers, updateSelectMarkerBeg, updateSelectMarkerEnd } from "./map"
-import { getTagsExcluded, getTagsFiltered } from "./tagLogic"
+import { addPhotoMarkers, updateNavMarker, clearPhotoMarkers, updateSelectMarkerBeg, updateSelectMarkerEnd, swapSelectMarkers } from "./map"
+import { getTagsByIds, getTagsExcluded, getTagsFiltered } from "./tagLogic"
+import { resetSelectBtnUi } from "./ui"
 
 
 // Lists that contains every photos from the response
@@ -37,6 +38,7 @@ export function cleanAllNav(){
     underwaterOffset = 0
     begSelectIndexInNav = -1
     endSelectIndexInNav = -1
+    resetSelectBtnUi()
 }
 
 export function setCurrentSurvey(surveyData){
@@ -146,11 +148,21 @@ export function updateListWithNewPhoto(newPhoto){
     if (!newPhoto){ return}
     if (newPhoto.is_underwater) {
         underAllList[newPhoto.in_survey_index] = newPhoto
-        updatePanelPhoto()
+        
     } else {
         aboveAllList[newPhoto.in_survey_index] = newPhoto
-        updatePanelPhoto()
     }
+}
+
+export function updateListWithNewPhotoList(newPhotoList){
+    if (!Array.isArray(newPhotoList)) {
+        console.error("Expected an array of photos but got:", newPhotoList);
+        return;
+    }
+
+    newPhotoList.forEach(photo => {
+        updateListWithNewPhoto(photo)
+    });
 }
 
 export async function changePhotoDisplayToIndex(i){
@@ -215,13 +227,33 @@ export function clearPhotoSelect(){
 }
 
 export function setBegSelectToCurrDisplay(){
-    begSelectIndexInNav = photoDisplayIndexInNav
-    updateSelectMarkerBeg()
+    if (endSelectIndexInNav >= 0 && endSelectIndexInNav <= photoDisplayIndexInNav){
+        // if end exist and is less than new beg, switch both and assing new end
+        begSelectIndexInNav = endSelectIndexInNav
+        endSelectIndexInNav = photoDisplayIndexInNav
+        swapSelectMarkers()
+        updateSelectMarkerEnd()
+    } else {
+        begSelectIndexInNav = photoDisplayIndexInNav
+        updateSelectMarkerBeg()
+    }
 }
 
 export function setEndSelectToCurrDisplay(){
-    endSelectIndexInNav = photoDisplayIndexInNav
-    updateSelectMarkerEnd()
+    if (begSelectIndexInNav < 0){
+        begSelectIndexInNav = photoDisplayIndexInNav
+        updateSelectMarkerBeg()
+    } else {
+        if(begSelectIndexInNav >= photoDisplayIndexInNav){
+            endSelectIndexInNav = begSelectIndexInNav
+            begSelectIndexInNav = photoDisplayIndexInNav
+            swapSelectMarkers()
+            updateSelectMarkerBeg()
+        } else {
+            endSelectIndexInNav = photoDisplayIndexInNav
+            updateSelectMarkerEnd()
+        }
+    }
 }
 
 export function getBegSelectIndexInNav(){
@@ -233,6 +265,38 @@ export function getEndSelectIndexInNav(){
 }
 
 
+export function getSelectedPhotoIds() {
+    if (begSelectIndexInNav < 0 || endSelectIndexInNav < 0) {
+        console.error("Selection markers are not set");
+        return {
+            abovePhotoIds: [],
+            underPhotoIds: [],
+            allPhotoIds: [],
+        };
+    }
+
+    const beg = Math.min(begSelectIndexInNav, endSelectIndexInNav);
+    const end = Math.max(begSelectIndexInNav, endSelectIndexInNav);
+
+    const photoIds = [];
+
+    for (let i = beg; i <= end; i++) {
+        const abovePhoto = aboveNavList[i];
+        if (abovePhoto && abovePhoto.id !== undefined) {
+            photoIds.push(abovePhoto.id);
+        }
+
+        const underIndex = abovePhoto.in_survey_index + underwaterOffset;
+        if (underIndex >= 0 && underIndex < underNavList.length) {
+            const underPhoto = underNavList[underIndex];
+            if (underPhoto && underPhoto.id !== undefined) {
+                photoIds.push(underPhoto.id);
+            }
+        }
+    }
+
+    return photoIds
+}
 
 //////////////////////// Total Display ////////////////////////////////////////
 
@@ -251,3 +315,50 @@ export async function updatePanelPhoto(){
     updatePhotoInfoBar(photoDisplayAbove, photoDisplayUnder)
     loadPhotoInPanelMain(photoDisplayAbove.filepath)
     }
+
+
+////////////////////// Extraction Function //////////////////////////////////////////
+
+export function exportNavToCsv(csvName) {
+    console.info("Exporting Nav to CSV");
+    let csvContent = "data:text/csv;charset=utf-8,";
+    // header row first
+    csvContent += "AboveWater Path,Underwater Path,Location,Timestamp,AboveWater Tags,Underwater Tags\r\n";
+
+
+    for (let index = 0; index < aboveNavList.length; index++) {
+        try {
+            let row = "";
+            const photoAbove = aboveNavList[index];
+            row += (photoAbove.filepath || "") + ",";
+
+            const underIndex = photoAbove.in_survey_index + underwaterOffset;
+            const photoUnder = (0 <= underIndex && underIndex < underNavList.length) ? underNavList[underIndex] : null;
+            row += (photoUnder?.filepath || "") + ",";
+
+            row += (photoAbove.coords || ",") + ",";
+            row += (photoAbove.datetime || "") + ",";
+
+            const tagsAbove = getTagsByIds(photoAbove.tag_ids).map(t => t.name).join("_");
+            const tagsUnder = photoUnder ? getTagsByIds(photoUnder.tag_ids).map(t => t.name).join("_") : "";
+
+            row += tagsAbove + "," + tagsUnder;
+            csvContent += row + "\r\n";
+        } catch (err) {
+            throw new Error(err.message || "Error extracting navigation metadata");
+        }
+    }
+
+    console.info("Csv Exported");
+
+    // Auto-download CSV
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", csvName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    return csvContent;
+}

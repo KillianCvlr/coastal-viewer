@@ -5,8 +5,9 @@ from sqlalchemy import select
 from fastapi.responses import FileResponse, StreamingResponse
 from io import BytesIO
 from db import get_db
-from schemas import PhotoOut, TagCreate, TagOut
-from crud import get_all_photos_data, get_photo_data_by_id, get_tag_by_name, create_tag, read_all_tags, get_tag_by_id, delete_tag_by_id, delete_tag_by_name
+from schemas import PhotoOut, TagCreate, TagOut, PhotosTagUpdateRequest
+from crud import get_all_photos_data, get_photo_data_by_id, get_tag_by_name, create_tag, read_all_tags, get_tag_by_id, delete_tag_by_id, delete_tag_by_name, get_missing_photo_ids, get_missing_tag_ids
+from crud import get_photos_by_ids, bulk_delete_and_set_photo_tags, bulk_add_photo_tags, bulk_pop_photo_tags
 from geoalchemy2.functions import ST_AsGeoJSON
 import os
 from logger import logger
@@ -63,6 +64,9 @@ def serve_downscaled_image(photo_path: str):
 def get_all_tags(db: Session = Depends(get_db)):
     return read_all_tags(db)
 
+def no_coords_tag_exists(db: Session = Depends(get_db)):
+    db_tag = get_tag_by_name(db, "noCoords")
+    return not (db_tag == None)
 
 @router.post("/tags/", response_model=TagOut)
 def post_new_tag(tag: TagCreate, db: Session = Depends(get_db)):
@@ -73,6 +77,7 @@ def post_new_tag(tag: TagCreate, db: Session = Depends(get_db)):
         tag.color = '#000000'
         
     return create_tag(db, tag)
+
 
 @router.put("/photos/{photo_id}/tags/", response_model=PhotoOut)
 def assign_tags_to_photo(photo_id: int, tagList: list[int], db: Session = Depends(get_db)):
@@ -108,19 +113,62 @@ def add_tags_to_photo(photo_id: int, tagList: list[int], db: Session = Depends(g
 
     photoData.tags.extend(tags)
     db.commit()
-    db.refresh(photoData)
+    db.refresh(photoData)   
     return photoData
-
-@router.delete("/tags/{id:int}/", status_code=204)
-def delete_tag_by_id_route(id:int, db: Session = Depends(get_db)):
-    db_tag = delete_tag_by_id(db,id)
-    if not db_tag:
-        raise HTTPException(status_code=400, detail="Tag does not exists")
-    return
 
 @router.delete("/tags/{name:str}/", status_code=204)
 def delete_tag_by_name_route(name:str, db: Session = Depends(get_db)):
+    if name == "noCoords" :
+        raise HTTPException(status_code=400, detail="Cannot delete noCoords Tag (Semantically needed)")
+    
     db_tag = delete_tag_by_name(db,name)
     if not db_tag:
         raise HTTPException(status_code=400, detail="Tag does not exists")
     return
+
+
+@router.put("/photos/tagsByList/", response_model=list[PhotoOut])
+def put_tags_on_photo_list(
+    payload: PhotosTagUpdateRequest, db: Session = Depends(get_db)
+):
+    photoIdList = payload.photoList
+    tagIdList = payload.tagList
+
+    missingPhotoIds = get_missing_photo_ids(db, photoIdList)
+    if missingPhotoIds:
+        raise HTTPException(status_code=400, detail=f"Missing Photo Ids: {missingPhotoIds}")
+
+    missingTagIds = get_missing_tag_ids(db, tagIdList)
+    if missingTagIds:
+        raise HTTPException(status_code=400, detail=f"Missing Tag Ids: {missingTagIds}")
+
+    bulk_delete_and_set_photo_tags(db, photoIdList, tagIdList)
+    photos = get_photos_by_ids(db, photoIdList)
+
+    return photos
+
+
+@router.patch("/photos/tagsByList/", response_model=list[PhotoOut])
+def patch_tags_on_photo_list(
+    payload: PhotosTagUpdateRequest, db: Session = Depends(get_db)
+):
+    photoIdList = payload.photoList
+    tagIdList = payload.tagList
+    method = payload.method
+
+    missingPhotoIds = get_missing_photo_ids(db, photoIdList)
+    if missingPhotoIds:
+        raise HTTPException(status_code=400, detail=f"Missing Photo Ids: {missingPhotoIds}")
+
+    missingTagIds = get_missing_tag_ids(db, tagIdList)
+    if missingTagIds:
+        raise HTTPException(status_code=400, detail=f"Missing Tag Ids: {missingTagIds}")
+
+    if method == "add" :
+        bulk_add_photo_tags(db, photoIdList, tagIdList)
+    elif method == "pop":
+        bulk_pop_photo_tags(db, photoIdList, tagIdList)
+    else :
+        raise HTTPException(status_code=400, detail="Method passed unknown")
+    photos = get_photos_by_ids(db, photoIdList)
+    return photos

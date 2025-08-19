@@ -118,7 +118,7 @@ export async function addTagsToPhoto(tagIds, photoId){
   
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.detail || "Error deleting tag.");
+    throw new Error(error.detail || "Error adding tags to photo.");
   }
   return res.json()
 }
@@ -132,11 +132,52 @@ export async function setTagsToPhoto(tagIds, photoId){
   
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.detail || "Error deleting tag.");
+    throw new Error(error.detail || "Error setting tags to photo.");
   }
   return res.json()
 }
 
+export async function addTagsToPhotoList(tagsList, photosList){
+  const res = await fetch(`/photos/tagsByList/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({photoList: photosList, tagList: tagsList, method: "add"} )
+  });
+  
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || "Error adding tags to photo list.");
+  }
+  return res.json()
+}
+
+export async function popTagsToPhotoList(tagsList, photosList){
+  const res = await fetch(`/photos/tagsByList/`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({photoList: photosList, tagList: tagsList, method: "pop"} )
+  });
+  
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || "Error poping tags to photo list.");
+  }
+  return res.json()
+}
+
+export async function setTagsToPhotoList(tagsList, photosList){
+  const res = await fetch(`/photos/tagsByList/`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({photoList: photosList, tagList: tagsList, method: "put"} )
+  });
+  
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.detail || "Error setting tags to photo list.");
+  }
+  return res.json()
+}
 
 /////////////////////////////////// Survey logic //////////////////////////////
 

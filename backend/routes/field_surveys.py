@@ -6,7 +6,7 @@ from db import get_db
 from schemas import FieldSurveyCreate, PhotoOut, FieldSurveyData
 from crud import create_survey, add_photos, update_survey_with_first_photo, get_all_surveys_data, get_survey_data, get_survey_photos
 from crud import get_survey_photos_abovewater, get_survey_photos_underwater, get_first_photo_with_location, get_count_survey_abovewater_photos, get_count_survey_underwater_photos
-from crud import delete_survey_by_id, get_survey_by_name
+from crud import delete_survey_by_id, get_survey_by_name, get_survey_photos_ids_without_loc, bulk_add_photo_tags, get_tag_by_name
 from pathlib import Path
 from logger import logger
 from utils import parse_photos_from_folder, get_conflicting_folder, is_existing_folder, internal_folder_conflict
@@ -108,27 +108,39 @@ def post_and_process_survey(new_data: FieldSurveyCreate, db: Session = Depends(g
     logger.info("Parsing photos...")
     photos_parsed = parse_photos_from_folder(survey.abovewater_folder, is_underwater=False, survey_id=survey.id)
     photos_parsed.extend(parse_photos_from_folder(survey.underwater_folder, is_underwater=True, survey_id=survey.id))
-    actualised_field_trip = False
+    actualised_field_location = False
     if len(photos_parsed) > 0:
         try:
             add_photos(db, photos_parsed)
         except Exception:
             raise HTTPException(status_code=500, detail="Failed to add photos to database")
         
-        first_photo = get_first_photo_with_location(db, survey_id=survey.id)
+        first_photo = get_first_photo_with_location(db, survey.id)
         if first_photo :
             update_survey_with_first_photo(db, survey, first_photo)
-            actualised_field_trip = True
+            actualised_field_location = True
             logger.info(f"Updated survey {survey.survey_name} location with photo {first_photo.filename}")
         else:
                 logger.info("No Photo found to actualise field survey")
-        logger.info(f"Parsed a total of {len(photos_parsed)} photos")
+        logger.info(f"Parsed and added a total of {len(photos_parsed)} photos")
     else : 
         logger.info("No Photo Parsed")
 
+    logger.info("Adding NoCoords Tag to photo with no location...")
+
+    photos_no_loc_ids = get_survey_photos_ids_without_loc(db, survey.id )
+    if photos_no_loc_ids:
+        noCoordtag = get_tag_by_name(db, "noCoords")
+        if noCoordtag :
+            bulk_add_photo_tags(db, photos_no_loc_ids, [noCoordtag.id])
+        else :
+            logger.info("Cannot noCoord tag")
+    else : 
+        logger.info("No photos without location found")
+
     logger.info(f"✅ Successfuly added survey {survey.survey_name} with id : {survey.id} and {len(photos_parsed)} photos to database")
 
-    return {"survey_id": survey.id, "total_photo_parsed": len(photos_parsed), "localisation_added": actualised_field_trip }
+    return {"survey_id": survey.id, "total_photo_parsed": len(photos_parsed), "localisation_added": actualised_field_location }
 
 def is_conflicting_survey(survey: FieldSurveyCreate, db: Session = Depends(get_db)) -> str | None:
     surveys_data = serve_all_surveys_data(db)

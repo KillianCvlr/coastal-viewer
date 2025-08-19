@@ -48,7 +48,7 @@ const greenIcon = L.icon({
 const navWrapper = document.getElementById("nav")
 
 export function initMap() {
-  map = L.map('map', {keyboard: false}).setView([43.6, 3.9], 4)
+  map = L.map('map', {keyboard: false}).setView([32, 12], 5,)
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 19,
     attribution: 'Tiles © Esri'
@@ -60,7 +60,7 @@ export function initMap() {
 }
 
 export function setDefaultView(){
-  map.flyTo([43.6, 3.9], 4,  {
+  map.flyTo([32, 12], 5,  {
     animate: true,
     duration: 2
   })
@@ -245,9 +245,20 @@ export function updateSelectMarkerEnd(){
       selectMarkerEnd.addTo(navMarkerGroup);
     }
   }
-  selectMarkerBeg.on('click', () =>{
+  selectMarkerEnd.on('click', () =>{
     changePhotoDisplayToIndex(getEndSelectIndexInNav())
   })
+}
+
+
+export function swapSelectMarkers() {
+  if (!selectMarkerBeg || !selectMarkerEnd) return;
+
+  const begPos = selectMarkerBeg.getLatLng();
+  const endPos = selectMarkerEnd.getLatLng();
+
+  selectMarkerBeg.setLatLng(endPos);
+  selectMarkerEnd.setLatLng(begPos);
 }
 
 

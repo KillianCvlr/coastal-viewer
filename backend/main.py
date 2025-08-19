@@ -11,7 +11,7 @@ from db import SessionLocal, engine, get_db
 from models import Base
 from fastapi.middleware.cors import CORSMiddleware
 from routes import field_surveys, photos, logs
-from schemas import FieldSurveyCreate
+from schemas import FieldSurveyCreate, TagCreate
 from crud import get_num_surveys
 
 from fastapi.exceptions import RequestValidationError
@@ -54,6 +54,13 @@ for i in range(MAX_RETRIES):
         # Try a dummy DB session
         db = SessionLocal()
         db.execute(text("SELECT 1"))
+        if not (photos.no_coords_tag_exists(db)):
+
+            noCoordTag = TagCreate(
+                name="noCoords",
+                color="#63452c"
+            )
+            photos.post_new_tag(noCoordTag, db)
 
         if get_num_surveys(db) < 1 :
             test_survey = FieldSurveyCreate(

@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, validator, errors
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from fastapi import Form
 from geoalchemy2 import WKTElement
 
@@ -21,6 +21,12 @@ class TagOut(TagBase):
     class Config:
         orm_mode = True
 
+class PhotosTagUpdateRequest(BaseModel):
+    photoList: List[int]
+    tagList: List[int]
+    method :str
+
+    
 ######################   Photo      #################################
 
 class PhotoOut(BaseModel):

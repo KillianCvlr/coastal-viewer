@@ -222,7 +222,7 @@ export async function updateTagsList(){
     try {
 
         const fetchedTags = await fetchTags();
-        tagsList = fetchedTags             // re-render UI
+        tagsList = fetchedTags
     } catch (err) {
         console.error("Error loading tags", err);
         alert(err.message);

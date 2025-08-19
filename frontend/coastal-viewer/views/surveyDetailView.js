@@ -14,11 +14,11 @@ export async function renderSurveyDetail(surveyId) {
     fetchSurvey(surveyId)
         .then(survey => {
             setCurrentSurvey(survey)
+
         })
         .catch(err => {
             console.error("Error loading survey Data:", err)
         });
-
     fetchSurveyPhotosAboveWater(surveyId)
         .then(photos =>{
             setaboveAllList(photos)
@@ -34,5 +34,4 @@ export async function renderSurveyDetail(surveyId) {
         .catch(err => {
             console.error("Error loading photos under water:", err)
         });
-    
 }

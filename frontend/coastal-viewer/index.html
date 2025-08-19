@@ -19,12 +19,13 @@
             <div id="photo-under-tag-content"></div>
           </div>
           <button id="toggle-info-btn">☰</button>
-          <button id="menu-modal-open-btn" class="btn">Home</button>
+          
+          <div id="custom-toaster-div"></div>
           
           <div id="nav">
             <div id="filtering-system-wrapper">
               <button id="apply-filtering-btn" class="btn">Apply filtering</button> 
-
+              
               <div id="filtering-system-subdiv">
                 <div id="filter-by-wrapper">
                   <button id="tag-filter-by-btn" class="btn">Filter by :</button>
@@ -54,6 +55,7 @@
             </div>
             
             <div id="nav-wrapper">
+              <button id="menu-modal-open-btn" class="btn">Home</button>
               <div id = travel-system>
                 <div id= "simple-travel-bar">
                   <button id="nav-prev" class="btn">Prev</button>
@@ -67,8 +69,8 @@
                 <hr style="width:100%;">
               </div>
               <div>
-                <button id="beg-select-btn" class="btn">beg</button>
-                <button id="end-select-btn" class="btn">end</button>
+                <button id="beg-select-btn" class="btn">+</button>
+                <button id="end-select-btn" class="btn">+</button>
               </div>
               
             </div>
@@ -96,13 +98,14 @@
           
           <div id = "menu-buttons-wrapper">
             <a href="/survey-manager/" class="btn">Survey Manager</a>
-            <label class="btn" >
-              <input type="checkbox" id="fullres-toggle" checked="true"> Full resolution
+            <label class="btn" > Full resolution
+              <input type="checkbox" id="fullres-toggle" checked="true"> 
             </label>
             <label class="btn">
               <input type="checkbox" id="magnifying-toggle" checked="true"> Zoom Mode
             </label>
             <button id="openTagModalBtn" class="btn"> Manage Tags</button>
+            <button id="extraction-modal-open-btn" class="btn"> Extract Selection</button>
           </div>
         </div>
       </div>
@@ -163,9 +166,25 @@
           <div id="select-modal-tag-list"></div>
           <h3> Photo Selection :</h3>
           <div id="select-modal-photo-select"></div>
-          <button id="select-modal-add" class="btn">Add</button>
-          <button id="select-modal-set" class="btn">set</button>
+          <hr>
+          <div id="select-modal-info"></div>
           <p id="select-modal-error" class="error"></p>
+          <button id="select-modal-add" class="btn">Add</button>
+          <button id="select-modal-set" class="btn">Set</button>
+          <button id="select-modal-pop" class="btn">Pop</button>
+        </div>
+      </div>
+
+      <div id="extraction-modal" class="modal hidden">
+        <div class="modal-content">
+          <span id="extraction-modal-close-btn" class="close">&times;</span>
+          <h3> Extract Selection</h3>
+          <div id="extraction-modal-photo-selection"></div>
+          <hr>
+          <input type="text" id="extract-name-input" placeholder="Name of .csv file generated" />
+          <div id="extraction-modal-info"></div>
+          <p id="extraction-modal-error" class="error"></p>
+          <button id="extraction-modal-validate" class="btn">Validate</button>
         </div>
       </div>
 

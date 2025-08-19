@@ -13,8 +13,8 @@ from geoalchemy2.shape import to_shape
 photo_tags = Table(
     'photo_tags',
     Base.metadata,
-    Column('photo_id', ForeignKey('photos.id', ondelete="CASCADE"), primary_key=True),
-    Column('tag_id', ForeignKey('tags.id', ondelete="CASCADE"), primary_key=True)
+    Column('photo_id', ForeignKey('photos.id', ondelete="CASCADE"), primary_key=True, index=True),
+    Column('tag_id', ForeignKey('tags.id', ondelete="CASCADE"), primary_key=True, index=True)
 )
 
 class Photo(Base):
@@ -57,7 +57,7 @@ class FieldSurvey(Base):
     abovewater_folder = Column(String(100))
     underwater_folder = Column(String(100))
     linking_file = Column(String(100))
-    underwater_offset = Column(Integer, primary_hey=False, index=False)
+    underwater_offset = Column(Integer, primary_key=False, index=False)
     photos = relationship("Photo", back_populates="survey", cascade="all, delete-orphan")
     
     @hybrid_property

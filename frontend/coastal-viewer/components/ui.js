@@ -1,7 +1,7 @@
-import { deleteTag, postNewTag, postOffset } from '../../shared/api.js';
+import { addTagsToPhotoList, setTagsToPhotoList, deleteTag, postNewTag, postOffset, popTagsToPhotoList } from '../../shared/api.js';
 import {  refreshMap } from './map.js'
-import {addToDisplayIndex, changePhotoDisplayToIndex, getAboveNavList, getBegSelectIndexInNav, getCurrentSurveyID, getEndSelectIndexInNav, nextphotoDisplayIndexInNav, previousphotoDisplayIndexInNav, setBegSelectToCurrDisplay, setCurrentSurvey, setEndSelectToCurrDisplay, subToDisplayIndex, updateAboveNavList, updatePanelPhoto} from './navigationLogic.js'
-import { applyFiltering, updateSelectModaltagList, updateTagsList } from './tagLogic.js';
+import {addToDisplayIndex, changePhotoDisplayToIndex, clearPhotoSelect, exportNavToCsv, getAboveNavList, getBegSelectIndexInNav, getCurrentSurveyID, getEndSelectIndexInNav, getSelectedPhotoIds, nextphotoDisplayIndexInNav, previousphotoDisplayIndexInNav, setBegSelectToCurrDisplay, setCurrentSurvey, setEndSelectToCurrDisplay, subToDisplayIndex, updateAboveNavList, updateListWithNewPhotoList, updatePanelPhoto} from './navigationLogic.js'
+import { applyFiltering, getSelectedTagsID, updateSelectModaltagList, updateTagsList } from './tagLogic.js';
 
 ///////////////////////////////RESIZERS//////////////////////////////////////// 
 
@@ -92,12 +92,19 @@ applyFilteringBtn.addEventListener("click", () => {
 begSelectBtn.addEventListener("click", () => {
   setBegSelectToCurrDisplay()
   begSelectBtn.innerHTML = `${getBegSelectIndexInNav()}`
+  endSelectBtn.innerHTML = `${getEndSelectIndexInNav()}`
 });
 
 endSelectBtn.addEventListener("click", () => {
   setEndSelectToCurrDisplay()
+  begSelectBtn.innerHTML = `${getBegSelectIndexInNav()}`
   endSelectBtn.innerHTML = `${getEndSelectIndexInNav()}`
 });
+
+export function resetSelectBtnUi(){
+  begSelectBtn.innerHTML = "+"
+  endSelectBtn.innerHTML = "+"
+}
 
 
 
@@ -114,12 +121,14 @@ tagModalOpenBtn.addEventListener('click', () => {
   updateTagsList()
   tagModal.classList.remove('hidden');
   tagModal.style.display = 'flex';
+  keybordActivated = false
 });
 
 tagModalCloseBtn.addEventListener('click', () => {
   tagModal.classList.add('hidden');
   tagModal.style.display = 'none';
   tagModalError.textContent = '';
+  keybordActivated = true
 });
 
 tagModalCreateBtn.addEventListener('click', async () => {
@@ -136,9 +145,7 @@ tagModalCreateBtn.addEventListener('click', async () => {
     console.log('Created tag:', newTag);
 
     // Reset tagModal
-    tagModal.classList.add('hidden');
-    tagModal.style.display = 'none';
-    tagModalError.textContent = '';
+    tagModalCloseBtn?.click()
     document.getElementById('newTagName').value = '';
     updateTagsList()
     alert("New Tag Created!");
@@ -231,7 +238,6 @@ menuModalOpenBtn.addEventListener('click', () => {
 menuModalCloseBtn.addEventListener('click', () => {
   menuModal.classList.add('hidden');
   menuModal.style.display = 'none';
-  menuModalError.textContent = '';
 });
 
 
@@ -240,9 +246,12 @@ menuModalCloseBtn.addEventListener('click', () => {
 const selectModal = document.getElementById('select-modal');
 const selectModalOpenBtn = document.getElementById('select-modal-open-btn')
 const selectModalCloseBtn = document.getElementById('select-modal-close-btn');
-const selectModalAddBtn = document.getElementById('select-modal-set');
-const selectModalSetBtn = document.getElementById('select-modal-add');
-const selectModalTagList = document.getElementById('select-modal-tag-list')
+const selectModalAddBtn = document.getElementById('select-modal-add');
+const selectModalPopBtn = document.getElementById('select-modal-pop');
+const selectModalSetBtn = document.getElementById('select-modal-set');
+// selectModalTagList is  used only in tagLogic
+const selectModalInfo = document.getElementById('select-modal-info')
+const selectModalError = document.getElementById('select-modal-error')
 const selectModalPhotoSelect = document.getElementById('select-modal-photo-select')
 
 selectModalOpenBtn.addEventListener('click', () => {
@@ -251,8 +260,10 @@ selectModalOpenBtn.addEventListener('click', () => {
     return
   }
   updateSelectModaltagList()
+  updateSelectModalPhotoSelection()
   selectModal.classList.remove('hidden');
   selectModal.style.display = 'flex';
+  selectModalInfo.innerHTML = ""
 });
 
 selectModalCloseBtn.addEventListener('click', () => {
@@ -261,8 +272,153 @@ selectModalCloseBtn.addEventListener('click', () => {
   selectModalError.textContent = '';
 });
 
+function updateSelectModalPhotoSelection(){
+  const begIndex = getBegSelectIndexInNav()
+  const endIndex = getEndSelectIndexInNav()
+  selectModalPhotoSelect.innerHTML = `Selected photos from ${begIndex} to ${endIndex} for a total of ${endIndex - begIndex +1} photos \n`
+}
+
+let selectModalClickable = true;
+
+selectModalAddBtn.addEventListener('click', async () => {
+  const selectedTags = getSelectedTagsID()
+  const selectedPhotos = getSelectedPhotoIds()
+
+  if (!selectModalClickable) { return}
+
+  try {
+    selectModalClickable = false
+    selectModalInfo.innerHTML = "Adding Tags to photos..."
+    const newPhotos = await addTagsToPhotoList(selectedTags, selectedPhotos)
+    updateListWithNewPhotoList(newPhotos)
+    selectModalCloseBtn?.click()
+    updatePanelPhoto()
+    selectModalClickable = true
+  } catch (err){
+    selectModalError.textContent = err.message || 'Error adding new tags.';
+    console.error("Error setting tags", err.message);
+    selectModalClickable = true
+    selectModalInfo.innerHTML = ""
+  }
+})
+
+selectModalPopBtn.addEventListener('click', async () => {
+  const selectedTags = getSelectedTagsID()
+  const selectedPhotos = getSelectedPhotoIds()
+
+  if (!selectModalClickable) { return}
+
+  try {
+    selectModalClickable = false
+    selectModalInfo.innerHTML = "Poping Tags to photos..."
+    const newPhotos = await popTagsToPhotoList(selectedTags, selectedPhotos)
+    updateListWithNewPhotoList(newPhotos)
+    selectModalCloseBtn?.click()
+    updatePanelPhoto()
+    selectModalClickable = true
+  } catch (err){
+    selectModalError.textContent = err.message || 'Error poping new tags.';
+    console.error("Error setting tags", err.message);
+    selectModalClickable = true
+    selectModalInfo.innerHTML = ""
+  }
+})
+
+
+selectModalSetBtn.addEventListener('click', async () => {
+  const selectedTags = getSelectedTagsID()
+  const selectedPhotos = getSelectedPhotoIds()
+
+  if (!selectModalClickable) { return}
+
+  try {
+    selectModalClickable = false
+    selectModalInfo.innerHTML = "Setting Tags to photos..."
+    const newPhotos = await setTagsToPhotoList(selectedTags, selectedPhotos)
+    updateListWithNewPhotoList(newPhotos)
+    selectModalCloseBtn?.click()
+    updatePanelPhoto() 
+    selectModalClickable = true   
+    selectModalInfo.innerHTML = ""
+  } catch (err){
+    selectModalError.textContent = err.message || 'Error setting new tags.';
+    console.error("Error setting tags", err.message);
+    selectModalClickable = true
+    selectModalInfo.innerHTML = ""
+  }
+})
+
+
+/////////////////////////////extract Modal Logic////////////////////////////////
+
+const extractModal = document.getElementById('extraction-modal');
+const extractModalOpenBtn = document.getElementById('extraction-modal-open-btn')
+const extractModalCloseBtn = document.getElementById('extraction-modal-close-btn');
+
+// extractModalTagList is  used only in tagLogic
+const extractModalInfo = document.getElementById('extraction-modal-info')
+const extractModalValidate = document.getElementById('extraction-modal-validate')
+const extractModalError = document.getElementById('extraction-modal-error')
+const extractModalPhotoExtract = document.getElementById('extraction-modal-photo-selection')
+
+extractModalOpenBtn.addEventListener('click', () => {
+  if ((getBegSelectIndexInNav() === -1) || (getEndSelectIndexInNav() === -1)){
+    alert("Please set up extraction markers before continuing")
+    return
+  }
+  
+  updateExtractModalPhotoSelection()
+  extractModal.classList.remove('hidden');
+  extractModal.style.display = 'flex';
+  extractModalInfo.innerHTML = ""
+});
+
+extractModalCloseBtn.addEventListener('click', () => {
+  extractModal.classList.add('hidden');
+  extractModal.style.display = 'none';
+  extractModalError.textContent = '';
+});
+
+function updateExtractModalPhotoSelection(){
+  const begIndex = getBegSelectIndexInNav()
+  const endIndex = getEndSelectIndexInNav()
+  extractModalPhotoExtract.innerHTML = `Selected photos from ${begIndex} to ${endIndex} for a total of ${endIndex - begIndex +1} photos \n`
+}
+
+let extractionClickable = true;
+
+extractModalValidate.addEventListener('click', async () => {
+
+  if (!extractionClickable) { return}
+
+  try {
+    extractionClickable = false
+    let csvName = document.getElementById('extract-name-input').value.trim();
+    if (!csvName) {
+        extractModalInfo.innerHTML = "No CsvName, using Standard"
+        csvName = "CoastalViewerExport"
+    }
+
+    extractModalInfo.innerHTML = "Extracting photos metadata..."
+    // Extraction function
+    let csvContent = exportNavToCsv(csvName)
+    console.info(csvContent)
+
+
+    extractModalCloseBtn?.click()
+    extractionClickable = true   
+    extractModalInfo.innerHTML = ""
+  } catch (err){
+    extractModalError.textContent = err.message || 'Error Extracting photos';
+    console.error(err, err.details)
+    extractionClickable = true
+    extractModalInfo.innerHTML = ""
+  }
+})
 
 ///////////////////////////// Keyboard Logic //////////////////////////////////
+
+let keybordActivated = true;
 
 const setTagPhotoBtn = document.getElementById('tag-set-to-photo')
 const addTagPhotoBtn = document.getElementById('tag-add-to-photo')
@@ -273,6 +429,8 @@ const toggleInfoBarBtn = document.getElementById('toggle-info-btn');
 
 
 document.addEventListener('keydown', function(event) {
+  if (!keybordActivated){return}
+
   switch (event.key) {
     case 'a':
       addTagPhotoBtn?.click();
@@ -294,6 +452,12 @@ document.addEventListener('keydown', function(event) {
       break;
     case 'ArrowRight':
       navNextDiv?.click();
+      break;
+    case 'ArrowUp':
+      fastNextDiv?.click();
+      break;
+    case 'ArrowDown':
+      fastPrevDiv?.click();
       break;
     case 'i':
       toggleInfoBarBtn?.click();

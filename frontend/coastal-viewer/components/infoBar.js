@@ -31,11 +31,11 @@ export function updatePhotoInfoBar(photoAbove, photoUnder) {
     const underwaterOffset = getUnderwaterOffset()
 
     // --- Handle photoAbove ---
-    linesAbove.push(`Nav : ${getIndexInNav() +1}/ ${getAboveNavListLength()}`);
+    linesAbove.push(`Nav : ${getIndexInNav()}/ ${getAboveNavListLength()}`);
     linesAbove.push(`<h3>🌅 Above Water</h3>`);
     
     if (photoAbove) {    
-        linesAbove.push(`Survey :${photoAbove.in_survey_index +1}/${getAboveAllListLength()}   |     Id : ${photoAbove.id}`);
+        linesAbove.push(`Survey :${photoAbove.in_survey_index}/${getAboveAllListLength()}   |     Id : ${photoAbove.id}`);
         linesAbove.push(`<p><strong>📄 Photo name:</strong><br>${photoAbove.filename}</p>`);
         
         if (photoAbove.datetime) {
@@ -56,7 +56,7 @@ export function updatePhotoInfoBar(photoAbove, photoUnder) {
     linesUnder.push(`<hr><h3>🌊 Underwater</h3>`);
     linesUnder.push(`<div id="change-offset-info-bar" class="offset-badge"> Offset : ${underwaterOffset} </div> <br>`);
     if (photoUnder) {
-        linesUnder.push(`Survey :${photoUnder.in_survey_index +1}/${getUnderAllListLength()}   |     Id : ${photoUnder.id}`);
+        linesUnder.push(`Survey :${photoUnder.in_survey_index}/${getUnderAllListLength()}   |     Id : ${photoUnder.id}`);
         linesUnder.push(`<p><strong>📄 Photo name:</strong><br>${photoUnder.filename}</p>`);
 
         if (photoUnder.datetime) {
@@ -86,5 +86,14 @@ export function updatePhotoInfoBar(photoAbove, photoUnder) {
         modal.classList.remove('hidden');
         modal.style.display = 'flex';
     })
+}
+
+export function clearInfoBar(){
+    aboveInfoContent.innerHTML = ""
+    underInfoContent.innerHTML = ""
+
+    undertagContent.innerHTML = ""
+    abovetagContent.innerHTML = ""
+    
 }
 

@@ -49,6 +49,7 @@ html, body {
   flex-direction: column;
   gap: 10px;
   padding: 10px;
+  overflow-x: scroll;
 }
 
 .survey-item {
@@ -59,11 +60,13 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  overflow-y: scroll;
 }
 
 .survey-info {
   display: flex;
   flex-direction: column;
+  overflow-y: scroll;
 }
 
 .survey-actions {
@@ -102,6 +105,8 @@ html, body {
   background-color: rgba(0, 0, 0, 0.3);
   justify-content: center;
   align-items: center;
+  overflow-y: scroll;
+
 }
 
 .modal-content {
